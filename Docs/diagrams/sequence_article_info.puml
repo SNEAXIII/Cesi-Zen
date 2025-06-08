@@ -1,0 +1,27 @@
+@startuml
+skinparam style strictuml
+skinparam monochrome true
+title
+    Consulter un article informatif
+end title
+actor Utilisateur
+participant "Interface Utilisateur" as UI
+participant "Contrôleur Frontend" as C
+participant "API Backend" as API
+participant "Base de Données" as DB
+Utilisateur -> UI : Affiche le menu des articles
+UI -> C : Requête pour récupérer les catégories d'article et les articles
+C -> API : Demande les informations
+API -> DB : Récupère les informations
+DB --> API : Retourne les informations
+API --> C : Retourne les informations
+C -> UI : Met à jour la vue avec les catégories et les articles triés
+Utilisateur -> UI : Sélectionne un article
+UI -> C : Envoie les informations sur l'article
+C -> API : Transmet les informations
+API -> DB : Demande l'article
+API <-- DB : Retourne l'article
+C <-- API : Transmet l'article
+UI <-- C : Affiche l'article
+Utilisateur <-- UI : Affiche l'article
+@enduml
