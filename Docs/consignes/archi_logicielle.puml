@@ -1,0 +1,27 @@
+@startuml
+
+skinparam style strictuml
+skinparam monochrome true
+
+' Composants principaux
+package "Frontend MVC" {
+  [Vue] as FrontView
+  [Contrôleur] as FrontController
+  [Services] as FrontModel
+}
+
+package "Backend API" {
+  [API Controller] as ApiController
+}
+
+[Base de Données MySQL] as DB
+[Serveur Mail] as MailServer
+
+' Relations entre les composants
+FrontView --> FrontController : Requêtes utilisateur
+FrontController --> FrontModel : Récupération des données
+FrontModel --> ApiController : Appels API
+ApiController --> DB : Lecture/Écriture
+ApiController --> MailServer : Envoi de mails
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+
+skinparam style strictuml
+skinparam monochrome true
+title
+    Configurer et lancer un exercice de respiration
+end title
+actor Utilisateur
+participant "Interface Utilisateur" as UI
+participant "Contrôleur Frontend" as C
+participant "API Backend" as API
+participant "Base de Données" as DB
+
+Utilisateur -> UI : Clique sur "Configurer l'exercice"
+UI -> C : Requête pour récupérer les paramètres disponibles
+C -> API : Demande les paramètres disponibles
+API -> DB : Récupère les paramètres d'exercice
+DB --> API : Retourne les paramètres
+API --> C : Retourne les paramètres disponibles
+C -> UI : Met à jour la vue avec les paramètres
+Utilisateur -> UI : Sélectionne les paramètres
+
+note over Utilisateur, UI : L'utilisateur suit les étapes de l'exercice
+
+UI -> C : Envoie les informations sur la séance
+C -> API : Transmet les informations
+API -> DB : Enregistre les infos sur la séance
+@enduml

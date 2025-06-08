@@ -1,0 +1,79 @@
+@startuml
+
+!theme sunlust
+hide empty
+skinparam linetype polyline
+allowmixing
+
+entity "Utilisateur" {
+  * id
+  --
+  login
+  email
+  password
+  banni
+  desactive
+  createdAt
+  derniereConnexion
+}
+
+entity "Role" {
+  * id
+  --
+  label
+}
+
+entity "ExerciceCohérenceCardiaque" {
+  * id
+  --
+  nom
+  dureeInspiration
+  dureeApnee
+  dureeExpiration
+  nombreCycles
+}
+
+entity "Categorie" {
+  * id
+  --
+  label
+  description
+}
+
+entity "Contenu" {
+  * id
+  --
+  titre
+  description
+  filepath
+}
+
+entity "HistoriqueConnexion" {
+  * id
+  --
+  dateConnexion
+  adresseIP
+  navigateur
+}
+
+usecase "possede\n__" as U1
+"Utilisateur" -- U1 : "1..1"
+"Role" -- U1 : "1..N"
+
+usecase "appartient\n__" as U2
+"Contenu" -- U2 : "1..N"
+"Categorie" -- U2 : "0..N"
+
+usecase "Historique_Exercice\n__\ndateExecution" as U3
+"Utilisateur" -- U3 : "0..N"
+"ExerciceCohérenceCardiaque" -- U3 : "0..N"
+
+usecase "Gere\n__" as U4
+"Utilisateur" -down- U4 : "0..N"
+"Contenu" -up- U4 : "1..1"
+"Categorie" -up- U4 : "1..1"
+
+usecase "Enregistre\n__" as U5
+"Utilisateur" -up- U5 : "1..N"
+"HistoriqueConnexion" -right- U5 : "1..1"
+@enduml

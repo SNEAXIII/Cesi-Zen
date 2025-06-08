@@ -1,0 +1,11 @@
+fastapi[standard]
+pyjwt
+passlib[bcrypt]<2.0.0,>=1.7.4
+python-multipart
+pydantic-settings
+casbin
+sqlmodel
+aiomysql
+icecream
+pymysql
+alembic

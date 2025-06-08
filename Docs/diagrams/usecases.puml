@@ -1,0 +1,87 @@
+@startuml
+
+!theme sunlust
+
+
+skinparam ArrowHeadColor black
+skinparam ArrowColor black
+skinparam Color black
+skinparam actorStyle awesome
+
+'left to right direction
+actor "Visiteur Anonyme" as VA
+actor "Utilisateur Connecté" as UC
+
+usecase "Configurer l’exercice de cohérence cardiaque" as E1
+usecase "Lancer l’exercice de cohérence cardiaque" as E2
+usecase "Affichage des Catégories" as I1
+usecase "Affichage des articles informatifs" as I4
+usecase "Consulter l'historique des exercices de cohérence cardiaque" as I3
+usecase "Création d’un compte utilisateur simple" as C1
+usecase "Se déconnecter" as C6
+usecase "Gestion du compte utilisateur" as C2
+usecase "Réinitialisation de son mot de passe" as C5
+usecase "Changer de pseudo" as C10
+usecase "Récupérer ses données privées" as C8
+usecase "Supprimer définitivement son compte" as C9
+
+VA --> C1
+VA --> E1
+VA --> I1
+
+UC --> C6
+UC --> C2
+UC --> I3
+UC --> E1
+UC --> I1
+
+C2 ..> C8 : <<extend>>
+C2 ..> C9 : <<extend>>
+C2 ..> C10 : <<extend>>
+
+E1 <.. E2 : <<extend>>
+I3 ..> E2 : <<include>>
+
+C5 <.. C2 : <<include>>
+VA --> C5
+
+I1 <.. I4 : <<include>>
+
+newpage
+!theme sunlust
+
+skinparam ArrowHeadColor black
+skinparam ArrowColor black
+skinparam Color black
+skinparam actorStyle awesome
+
+actor "Administrateur" as Admin
+
+usecase "Suppression d’un compte utilisateur" as C4
+usecase "Désactivation d’un compte utilisateur" as C19
+usecase "Supprimer une catégorie" as C13
+usecase "Ajouter une catégorie" as C14
+usecase "Lister les articles" as I2
+usecase "Trier les articles en fonction des catégories" as C15
+usecase "Créer un article" as C16
+usecase "Supprimer un article" as C17
+usecase "Lister les catégories" as C12
+usecase "Modifier les catégories à un article" as C18
+usecase "Lister les utilisateur" as C7
+usecase "Création de comptes utilisateurs" as C3
+usecase "Gerer les roles d'un compte" as C11
+
+Admin --> C7
+C7 ..> C4 : <<extend>>
+C7 ..> C19 : <<extend>>
+C7 .right.> C3 : <<extend>>
+C7 ..> C11 : <<extend>>
+Admin --> I2
+I2 ..> C15 : <<extend>>
+I2 .right.> C16 : <<extend>>
+I2 .left.> C17 : <<extend>>
+I2 ..> C18 : <<extend>>
+Admin --> C12
+C12 ..> C13 : <<extend>>
+C12 ..> C14 : <<extend>>
+@enduml

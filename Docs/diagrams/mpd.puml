@@ -1,0 +1,66 @@
+@startuml
+skinparam classAttributeIconSize 0
+'hide circle
+hide empty
+skinparam linetype polyline
+!theme sunlust
+
+entity Category {
+   + id: int
+   label: varchar
+   description: varchar
+   # id_user: uuid
+}
+entity Content {
+   + id: int
+   title: varchar
+   description: varchar
+   filepath: varchar
+   # id_user: uuid
+   # id_category: int
+}
+entity CategoryContent {
+    +# id_content: int
+    +# id_category: int
+}
+entity CardiacCoherenceExercise {
+   + id: int
+   name: varchar
+   durationInspiration: float
+   durationApnea: float
+   durationExpiration: float
+   numberCycles: int
+}
+entity LoginLog {
+   + id: int
+   dateConnexion: datetime
+   # id_user: uuid
+}
+entity ExerciseLog {
+   + id: int
+   dateExecution: datetime
+   # id_user: uuid
+   # exercise_id: int
+}
+entity User {
+   + id: uuid
+   login: varchar
+   email: varchar
+   hashed_password: varchar
+   disabled: bool
+   deleted: bool
+   created_at: datetime
+   last_login_date: datetime
+   role: enum {ADMIN, USER, ANONYMOUS}
+}
+
+Category -up-> CategoryContent
+Content -up-> CategoryContent
+
+User -up-> Category
+User -up-> Content
+
+CardiacCoherenceExercise -down-> ExerciseLog
+User -left-> ExerciseLog
+User -right-> LoginLog
+@enduml
