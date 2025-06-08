@@ -1,0 +1,8 @@
+p, anonymous, /(docs|redocs), GET
+p, anonymous, /*.(json|js|png), GET
+p, user, /users/profile, GET
+p, anonymous, /auth/*, POST
+# Permission heritage
+# Role1 <-[give perm]- Role2
+g, user, anonymous
+g, admin, user
