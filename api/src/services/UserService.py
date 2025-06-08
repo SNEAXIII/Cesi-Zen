@@ -72,7 +72,6 @@ class UserService:
 
 
 # async def update_utilisateur(session: SessionDep, user_id, **kwargs) -> Optional[User]:
-#     # todo vérifier avec des dto
 #     user = await session.get(User, user_id)
 #     if not user:
 #         return None
