@@ -1,5 +1,0 @@
-python -m alembic revision --autogenerate -m "create my table table"
-python -m alembic upgrade head
-python -m alembic downgrade -1
-
-python -m pytest test --cov --cov-report term-missing -v
