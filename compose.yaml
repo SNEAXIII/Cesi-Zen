@@ -1,0 +1,27 @@
+networks:
+  internal:
+    driver: bridge
+
+services:
+  database:
+    image: 'mariadb'
+    ports:
+      - '3306:3306'
+    container_name: database
+    networks:
+      - internal
+    env_file: "db.env"
+    volumes:
+      - './data/db/:/var/lib/mysql'
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '8080:80'
+    container_name: phpmyadmin
+    networks:
+      - internal
+    environment:
+      - PMA_HOST=database
+      - PMA_PORT=3306
+    depends_on:
+      - database
