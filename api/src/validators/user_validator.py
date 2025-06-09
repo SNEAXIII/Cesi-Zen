@@ -4,18 +4,17 @@ import hmac
 
 import email_validator
 
-from src.Exceptions.user_exceptions import (
+from src.Messages.user_messages import (
     PASSWORD_WRONG_SIZE,
-    PASSWORD_NEED_DIGIT,
     PASSWORD_NEED_UPPER,
     PASSWORD_NEED_LOWER,
     PASSWORD_NEED_SPECIAL,
     NOT_STR,
     EMAIL_INVALID,
     LOGIN_WRONG_SIZE,
-    LOGIN_NON_ALPHANUM,
+    LOGIN_NON_ALPHANUM, PASSWORD_NEED_DIGIT,
 )
-from src.Exceptions.validators_exception import PASSWORD_UNEQUAL_ERROR
+from src.Messages.validators_messages import PASSWORD_UNEQUAL_ERROR
 
 SPECIAL_CHARS = "$@#%!^&*-_+="
 MIN_LOGIN_LENGHT = 4

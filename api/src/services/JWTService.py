@@ -5,7 +5,7 @@ import jwt
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import ExpiredSignatureError
 
-from src.Exceptions.jwt_token_exceptions import (
+from src.Messages.jwt_messages import (
     EXPIRED_EXCEPTION,
     CREDENTIALS_EXCEPTION,
     CANT_FIND_USER_TOKEN_EXCEPTION,

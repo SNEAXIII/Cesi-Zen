@@ -1,8 +1,8 @@
 from typing import Annotated, Optional
 from fastapi import Depends
-from src.Exceptions.jwt_token_exceptions import (
-    CREDENTIALS_EXCEPTION,
-)
+
+from src.Messages.jwt_messages import CREDENTIALS_EXCEPTION
+
 from src.models import User
 from src.services.JWTService import JWTService, oauth2_scheme
 from src.services.PasswordService import PasswordService

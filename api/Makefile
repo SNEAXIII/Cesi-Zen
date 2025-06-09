@@ -1,6 +1,7 @@
 VENV_PYTHON := venv\Scripts\python.exe
 RUN_MODULE := $(VENV_PYTHON) -m
 help:
+	@echo "run-dev	-->	run the server in dev mode with auto reload"
 	@echo "create-mig	-->	create fresh new migration"
 	@echo "migrate	-->	execute pending migrations"
 	@echo "cancel-last	-->	cancel last executed migration"
