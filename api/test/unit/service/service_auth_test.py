@@ -3,10 +3,7 @@ from typing import Optional
 
 import pytest
 
-from src.Exceptions.jwt_token_exceptions import (
-    JwtCredentialsError,
-    CREDENTIALS_EXCEPTION,
-)
+from src.Messages.jwt_messages import JwtCredentialsError, CREDENTIALS_EXCEPTION
 from src.models import User
 from src.services.AuthService import AuthService
 from src.services.JWTService import JWTService

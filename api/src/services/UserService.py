@@ -1,21 +1,34 @@
+import uuid
 from typing import Optional
 
 from sqlmodel import select
 
-from src.Exceptions.user_exceptions import (
+from src.Messages.user_messages import (
     USER_DOESNT_EXISTS,
     USER_IS_DELETED,
     USER_IS_DISABLED,
+    TARGET_USER_IS_ALREADY_DISABLED,
+    TARGET_USER_DOESNT_EXISTS,
+    TARGET_USER_IS_ADMIN,
+    TARGET_USER_IS_ALREADY_ENABLED,
+    TARGET_USER_IS_DELETED,
+    TARGET_USER_IS_ALREADY_DELETED,
 )
-from src.Exceptions.validators_exception import (
+from src.Messages.validators_messages import (
     EMAIL_ALREADY_EXISTS_ERROR,
     LOGIN_ALREADY_EXISTS_ERROR,
 )
+from src.enums.Roles import Roles
 from src.models import User
-from src.dto.dto_utilisateurs import CreateUser
+from src.dto.dto_utilisateurs import (
+    CreateUser,
+    UserAdminViewAllUsers,
+    UserAdminViewSingleUser,
+)
 from src.services.PasswordService import PasswordService
 from src.utils.db import SessionDep
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy import func
 
 
 class UserService:
@@ -41,7 +54,7 @@ class UserService:
         return new_user
 
     @classmethod
-    async def get_user(cls, session: SessionDep, user_id: str) -> Optional[User]:
+    async def get_user(cls, session: SessionDep, user_id: uuid.UUID) -> Optional[User]:
         result = await session.get(User, user_id)
         return result
 
@@ -69,6 +82,79 @@ class UserService:
         sql = select(User).where(User.email == email)
         result = await session.exec(sql)
         return result.first()
+
+    @classmethod
+    async def patch_disable_user(
+        cls, session: SessionDep, user_uuid: uuid.UUID
+    ) -> True:
+        user: Optional[User] = await UserService.get_user(session, user_uuid)
+        if user is None:
+            raise TARGET_USER_DOESNT_EXISTS
+        if user.deleted:
+            raise TARGET_USER_IS_DELETED
+        if user.role == Roles.ADMIN:
+            raise TARGET_USER_IS_ADMIN
+        if user.disabled:
+            raise TARGET_USER_IS_ALREADY_DISABLED
+        user.disabled = True
+        await session.commit()
+        return True
+
+    @classmethod
+    async def patch_enable_user(cls, session: SessionDep, user_uuid: uuid.UUID) -> True:
+        user: Optional[User] = await UserService.get_user(session, user_uuid)
+        if user is None:
+            raise TARGET_USER_DOESNT_EXISTS
+        if user.deleted:
+            raise TARGET_USER_IS_DELETED
+        if not user.disabled:
+            raise TARGET_USER_IS_ALREADY_ENABLED
+        user.disabled = False
+        await session.commit()
+        return True
+
+    @classmethod
+    async def delete_user(cls, session: SessionDep, user_uuid: uuid.UUID) -> True:
+        user: Optional[User] = await UserService.get_user(session, user_uuid)
+        if user is None:
+            raise TARGET_USER_DOESNT_EXISTS
+        if user.deleted:
+            raise TARGET_USER_IS_ALREADY_DELETED
+        user.deleted = True
+        await session.commit()
+        return True
+
+    @classmethod
+    async def get_users_paginated(
+        cls, session: SessionDep, page: int, size: int
+    ) -> list[User]:
+        offset = (page - 1) * size
+        sql = select(User).offset(offset).limit(size)
+        result = await session.exec(sql)
+        return result.all()
+
+    @classmethod
+    async def get_total_users(cls, session: SessionDep) -> int:
+        sql = select(func.count(User.id))
+        result = await session.exec(sql)
+        return result.one()
+
+    @classmethod
+    async def get_users_with_pagination(
+        cls, session: SessionDep, page: int, size: int
+    ) -> UserAdminViewAllUsers:
+        total_users = await UserService.get_total_users(session)
+        users = await UserService.get_users_paginated(session, page, size)
+        total_pages = (total_users + size - 1) // size
+        mapped_users = [
+            UserAdminViewSingleUser.model_validate(user.model_dump()) for user in users
+        ]
+        return UserAdminViewAllUsers(
+            users=mapped_users,
+            total_users=total_users,
+            total_pages=total_pages,
+            current_page=page,
+        )
 
 
 # async def update_utilisateur(session: SessionDep, user_id, **kwargs) -> Optional[User]:

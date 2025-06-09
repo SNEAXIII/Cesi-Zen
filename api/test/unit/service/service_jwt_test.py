@@ -6,7 +6,7 @@ import pytest
 from freezegun import freeze_time
 from jwt import ExpiredSignatureError
 
-from src.Exceptions.jwt_token_exceptions import (
+from src.Messages.jwt_messages import (
     JwtError,
     EXPIRED_EXCEPTION,
     CANT_FIND_USER_TOKEN_EXCEPTION,

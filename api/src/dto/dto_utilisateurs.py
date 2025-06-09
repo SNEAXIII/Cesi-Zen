@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional
 
 
@@ -29,8 +30,8 @@ class CreateUser(Passwords):
     email: EmailStr = Field(examples=["user@gmail.com"])
 
 
-class ResetPassword(Passwords):
-    current_password: str
+# class ResetPassword(Passwords):
+#     current_password: str
 
 
 class UserBaseResponse(BaseModel):
@@ -45,3 +46,18 @@ class SuccessfullyCreatedUtilisateur(UserBaseResponse):
 
 class UserProfile(UserBaseResponse):
     last_login_date: Optional[datetime] = Field(default=None)
+
+
+class UserAdminViewSingleUser(UserBaseResponse):
+    id: uuid.UUID
+    created_at: datetime
+    last_login_date: Optional[datetime] = Field(default=None)
+    disabled: bool
+    deleted: bool
+
+
+class UserAdminViewAllUsers(BaseModel):
+    users: list[UserAdminViewSingleUser]
+    total_users: int = Field(default=1)
+    total_pages: int = Field(default=1)
+    current_page: int = Field(default=1)

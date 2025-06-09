@@ -2,7 +2,7 @@ import pytest
 from email_validator import EmailSyntaxError
 from fastapi.exceptions import RequestValidationError
 
-from src.Exceptions.user_exceptions import (
+from src.Messages.user_messages import (
     PASSWORD_WRONG_SIZE,
     PASSWORD_NEED_SPECIAL,
     PASSWORD_NEED_DIGIT,
@@ -13,7 +13,8 @@ from src.Exceptions.user_exceptions import (
     LOGIN_WRONG_SIZE,
     LOGIN_NON_ALPHANUM,
 )
-from src.Exceptions.validators_exception import PASSWORD_UNEQUAL_ERROR
+
+from src.Messages.validators_messages import PASSWORD_UNEQUAL_ERROR
 from src.validators.user_validator import (
     password_validator,
     MAX_PASSWORD_LENGHT,

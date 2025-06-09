@@ -2,6 +2,7 @@ import casbin
 import pytest
 
 from src.enums.Roles import Roles
+from src.security.casbin import enforce
 
 enforcer = casbin.Enforcer(
     "src/security/casbin-config/rbac_model.conf",
@@ -10,6 +11,8 @@ enforcer = casbin.Enforcer(
 
 POST = "POST"
 GET = "GET"
+PATCH = "PATCH"
+DELETE = "DELETE"
 ANONYMOUS_ROLE = {
     Roles.ANONYMOUS: True,
     Roles.USER: True,
@@ -53,15 +56,18 @@ def generate_data_set_for_all_route(
         [
             [POST, "/auth/login", ANONYMOUS_ROLE],
             [POST, "/auth/register", ANONYMOUS_ROLE],
+            [PATCH, "/admin/users/disable/a8920a55-77df-493a-8c8a-7c9c98657b44", ADMIN_ROLE],
+            [PATCH, "/admin/users/enable/a8920a55-77df-493a-8c8a-7c9c98657b44", ADMIN_ROLE],
+            [DELETE, "/admin/users/disable/a8920a55-77df-493a-8c8a-7c9c98657b44", ADMIN_ROLE],
         ]
     ),
 )
 def test_routes(role, route, method, expected_result):
     # Act
-    result = enforcer.enforce(role, route, method)
+    result = enforce(role, route, method)
 
     # Assert
-    assert result == expected_result,(
+    assert result == expected_result, (
         f"\nTest Failed for the following parameters:\n"
         f"   Role: {role}\n"
         f"   Route: {route}\n"
@@ -69,4 +75,5 @@ def test_routes(role, route, method, expected_result):
         f"\n"
         f"Expected Result: {expected_result}\n"
         f"Actual Result: {result}\n"
-        f"\n")
+        f"\n"
+    )

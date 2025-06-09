@@ -1,7 +1,9 @@
 p, anonymous, /(docs|redocs), GET
 p, anonymous, /*.(json|js|png), GET
-p, user, /users/profile, GET
+p, user, /users/*, GET
+p, user, /users, GET
 p, anonymous, /auth/*, POST
+p, admin, /admin/*, (GET|POST|PATCH|DELETE)
 # Permission heritage
 # Role1 <-[give perm]- Role2
 g, user, anonymous
