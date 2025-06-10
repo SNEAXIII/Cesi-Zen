@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import jwt
@@ -22,7 +22,7 @@ class JWTService:
     @classmethod
     def create_token(cls, data: dict, expires_delta: timedelta) -> str:
         to_encode = data.copy()
-        expire = datetime.now() + expires_delta
+        expire = datetime.now(tz=timezone.utc) + expires_delta
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(
             to_encode, SECRET.SECRET_KEY, algorithm=SECRET.ALGORITHM

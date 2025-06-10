@@ -24,8 +24,6 @@ from src.services.JWTService import (
 )
 from src.services.AuthService import AuthService
 
-# ic.disable()
-
 
 app = FastAPI()
 app.include_router(admin_controller)
@@ -42,14 +40,16 @@ def custom_openapi():
         description="Documentation for Cesi Zen api backend",
         routes=app.routes,
     )
-    openapi_schema["components"]["securitySchemes"] = {
-        "bearerAuth": {
-            "type": "http",
-            "scheme": "bearer",
-            "bearerFormat": "JWT",
-        }
-    }
-    openapi_schema["security"] = [{"bearerAuth": []}]
+    ## Uncomment this code if you want to paste
+    ## jwt instead of login and password in swagger doc
+    # openapi_schema["components"]["securitySchemes"] = {
+    #     "BearerAuth": {
+    #         "type": "http",
+    #         "scheme": "bearer",
+    #         "bearerFormat": "JWT"
+    #     }
+    # }
+    # openapi_schema["security"] = [{"bearerAuth": []}]
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
@@ -72,7 +72,6 @@ async def check_user_role(
         "path": uri,
         "method": method,
     }
-
     route_exists = any(
         route.matches(scope)[0] == Match.FULL for route in app.router.routes
     )
@@ -107,7 +106,7 @@ async def check_user_role(
         middleware_logger.error(f"Can't access to the route {uri} with role {role}")
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"message": "Role insuffisant"},
+            content={"message": "Non autorisé"},
         )
     middleware_logger.info(f"Can access to the route {uri} with role {role}")
     # Execute the requested function
