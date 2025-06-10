@@ -1,4 +1,8 @@
-VENV_PYTHON := venv\Scripts\python.exe
+ifeq ($(OS), Windows_NT)
+    VENV_PYTHON := venv/Scripts/python.exe
+else
+    VENV_PYTHON := venv/bin/python
+endif
 RUN_MODULE := $(VENV_PYTHON) -m
 help:
 	@echo "run-dev	-->	run the server in dev mode with auto reload"
@@ -11,7 +15,7 @@ help:
 	@echo "dl_all_reqs	-->	install prod and dev requirements"
 
 create-venv:
-	python venv venv
+	python -m venv venv
 
 dl_base_reqs:
 	$(RUN_MODULE) pip install -r requirements.txt
