@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from src.Messages.user_messages import (
     TARGET_USER_DISABLED_SUCCESSFULLY,
@@ -8,13 +8,17 @@ from src.Messages.user_messages import (
     TARGET_USER_DELETED_SUCCESSFULLY,
 )
 from src.dto.dto_utilisateurs import UserAdminViewAllUsers
+from src.services.AuthService import AuthService
 from src.services.UserService import UserService
 from src.utils.db import SessionDep
 
 admin_controller = APIRouter(
     prefix="/admin",
     tags=["Admin"],
-    # dependencies=[Depends(AuthService.get_current_user_in_jwt)],
+    dependencies=[
+        Depends(AuthService.is_logged_as_admin),
+        Depends(AuthService.get_current_user_in_jwt),
+    ],
 )
 
 
