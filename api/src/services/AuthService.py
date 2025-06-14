@@ -1,7 +1,8 @@
 from typing import Annotated, Optional
 from fastapi import Depends
 
-from src.Messages.jwt_messages import CREDENTIALS_EXCEPTION
+from src.Messages.jwt_messages import CREDENTIALS_EXCEPTION, INSUFFISANT_ROLE_EXCEPTION
+from src.enums.Roles import Roles
 
 from src.models import User
 from src.services.JWTService import JWTService, oauth2_scheme
@@ -43,3 +44,23 @@ class AuthService:
             session, username
         )
         return user
+
+    @classmethod
+    async def is_logged_as_user(
+        cls,
+        token: Annotated[str, Depends(oauth2_scheme)],
+    ) -> True:
+        role = JWTService.decode_jwt(token)["role"]
+        if role not in Roles.__members__.values():
+            raise INSUFFISANT_ROLE_EXCEPTION
+        return True
+
+    @classmethod
+    async def is_logged_as_admin(
+        cls,
+        token: Annotated[str, Depends(oauth2_scheme)],
+    ) -> True:
+        role = JWTService.decode_jwt(token)["role"]
+        if role != Roles.ADMIN:
+            raise INSUFFISANT_ROLE_EXCEPTION
+        return True

@@ -1,3 +1,4 @@
+from time import perf_counter
 from typing import Annotated
 from fastapi.openapi.utils import get_openapi
 import logging
@@ -7,25 +8,27 @@ from icecream import ic
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from fastapi.routing import Match
 
-from src.Messages.jwt_messages import JwtError
 from src.controllers.admin_controller import admin_controller
 from src.controllers.auth_controller import auth_controller
 from src.dto.dto_utilisateurs import (
     UserProfile,
 )
-from src.enums.Roles import Roles
 from src.models import User
-from src.security.casbin import enforce
-from src.services.JWTService import (
-    oauth2_scheme,
-    JWTService,
-)
 from src.services.AuthService import AuthService
+from fastapi.middleware.cors import CORSMiddleware
+# ic.disable()
 
 
 app = FastAPI()
+origins = ["http://localhost:*", "http://192.168.1.14:3000", "http://127.0.0.1:8000"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(admin_controller)
 app.include_router(auth_controller)
 middleware_logger = logging.getLogger("Middleware")
@@ -64,59 +67,17 @@ async def check_user_role(
 ):
     uri = request.url.path.rstrip("/")
     method = request.method
-    ic(f"Requested {uri = }")
-    token = None
-    # Check if the route exists
-    scope = {
-        "type": "http",
-        "path": uri,
-        "method": method,
-    }
-    route_exists = any(
-        route.matches(scope)[0] == Match.FULL for route in app.router.routes
-    )
-    if not route_exists:
-        return JSONResponse(
-            status_code=404,
-            content={"message": "Route non trouvée"},
-        )
-    # Token recovery
-    try:
-        token = await oauth2_scheme(request)
-    except HTTPException as exception:
-        middleware_logger.warning("Error while recover Jwt:\n%s", str(exception))
-    # Token parsing
-    role = None
-    if token:
-        try:
-            role = JWTService.decode_jwt(token)["role"]
-        except JwtError as exception:
-            return_message = str(exception)
-            middleware_logger.warning("Error while decoding Jwt:\n%s", return_message)
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"message": return_message},
-            )
-    # Role verification
-    if role is None:
-        role = Roles.ANONYMOUS.value
-    can_access: bool = enforce(role, uri, request.method)
-    ic(role, uri, method, can_access)
-    if not can_access:
-        middleware_logger.error(f"Can't access to the route {uri} with role {role}")
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"message": "Non autorisé"},
-        )
-    middleware_logger.info(f"Can access to the route {uri} with role {role}")
-    # Execute the requested function
+    ic(f"Requested {method} {uri = }")
+    start_time = perf_counter()
     response = await next_function(request)
+    process_time = perf_counter() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
     return response
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    """ "Override default validation error for a better structure"""
+    """Override default validation error for a better structure"""
     errors_dict = {}
     for error in exc.errors():
         location_list = error.get("loc")
@@ -139,6 +100,11 @@ async def http_exception_handler(request: Request, exc):
         status_code=exc.status_code,
         content={"message": exc.detail},
     )
+
+
+@app.options("/{full_path:path}")
+async def preflight_handler(full_path: str):
+    return JSONResponse(content={}, status_code=200)
 
 
 @app.get("/users/profile", response_model=UserProfile)

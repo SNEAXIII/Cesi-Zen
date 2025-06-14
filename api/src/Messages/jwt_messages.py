@@ -18,4 +18,5 @@ class JwtCredentialsError(JwtError):
 EXPIRED_EXCEPTION = JwtError("Le token a expiré, veuillez vous reconnecter")
 CANT_FIND_USER_TOKEN_EXCEPTION = JwtError("L'utilisateur n'a pas pu être trouvé dans le token")
 INVALID_ROLE_EXCEPTION = JwtError("Le role dans le token n'est pas valide")
+INSUFFISANT_ROLE_EXCEPTION = JwtError("Le role n'est pas suffisant, accès refusé")
 CREDENTIALS_EXCEPTION = JwtCredentialsError("Les identifiants saisis sont incorrects")
