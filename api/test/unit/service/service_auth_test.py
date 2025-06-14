@@ -3,7 +3,13 @@ from typing import Optional
 
 import pytest
 
-from src.Messages.jwt_messages import JwtCredentialsError, CREDENTIALS_EXCEPTION
+from src.Messages.jwt_messages import (
+    JwtCredentialsError,
+    CREDENTIALS_EXCEPTION,
+    JwtError,
+    INSUFFISANT_ROLE_EXCEPTION,
+)
+from src.enums.Roles import Roles
 from src.models import User
 from src.services.AuthService import AuthService
 from src.services.JWTService import JWTService
@@ -15,6 +21,7 @@ HASHED_PASSWORD = "hash"
 LOGIN = "User"
 EMAIL = "user@gmail.com"
 TOKEN = "token"
+UNKNOWN_ROLE = "unknown"
 
 
 def get_user_mock(mocker, return_value: Optional[User]):
@@ -144,3 +151,56 @@ async def test_get_current_user_in_jwt_user_not_found(mocker):
     mock_decode.assert_called_once_with(TOKEN)
     mock_get_user.assert_called_once_with(mock_session, LOGIN)
     assert result is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "role",
+    [role for role in Roles.__members__.values()],
+)
+async def test_is_logged_as_user_success(mocker, role):
+    # Arrange
+    mock_decode = decode_mock(mocker, {"role": role})
+
+    # Act
+    result = await AuthService.is_logged_as_user(TOKEN)
+
+    # Assert
+    mock_decode.assert_called_once_with(TOKEN)
+    assert result is True
+
+
+@pytest.mark.asyncio
+async def test_is_logged_as_admin_success(mocker):
+    # Arrange
+    mock_decode = decode_mock(mocker, {"role": Roles.ADMIN})
+
+    # Act
+    result = await AuthService.is_logged_as_admin(TOKEN)
+
+    # Assert
+    mock_decode.assert_called_once_with(TOKEN)
+    assert result is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "method_to_test,role",
+    [
+        (AuthService.is_logged_as_admin, UNKNOWN_ROLE),
+        (AuthService.is_logged_as_admin, Roles.USER),
+        (AuthService.is_logged_as_user, UNKNOWN_ROLE),
+    ],
+    ids=[f"admin-{UNKNOWN_ROLE}", f"admin-{Roles.USER}", f"user-{UNKNOWN_ROLE}"],
+)
+async def test_is_logged_as_error(mocker, method_to_test, role):
+    # Arrange
+    mock_decode = decode_mock(mocker, {"role": role})
+
+    # Act
+    with pytest.raises(JwtError) as error:
+        await method_to_test(TOKEN)
+
+    # Assert
+    mock_decode.assert_called_once_with(TOKEN)
+    assert error.value.detail == str(INSUFFISANT_ROLE_EXCEPTION)

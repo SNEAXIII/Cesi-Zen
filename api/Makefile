@@ -27,8 +27,8 @@ dl_all_reqs:
 run-dev:
 	$(RUN_MODULE) fastapi dev --reload
 
-create-migration:
-	$(RUN_MODULE) alembic revision --autogenerate -m "create my table table"
+create-mig:
+	$(RUN_MODULE) alembic revision --autogenerate -m "create my table"
 
 migrate:
 	$(RUN_MODULE) alembic upgrade head

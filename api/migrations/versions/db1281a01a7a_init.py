@@ -40,7 +40,7 @@ def upgrade() -> None:
     sa.Column('deleted', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('last_login_date', sa.DateTime(), nullable=True),
-    sa.Column('role', sa.Enum('ADMIN', 'USER', 'ANONYMOUS', name='roles'), nullable=False),
+    sa.Column('role', sa.Enum('ADMIN', 'USER', name='roles'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('login')
