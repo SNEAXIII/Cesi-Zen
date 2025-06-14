@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import jwt
@@ -158,7 +158,7 @@ def test_create_token_success(mocker):
     input_data = {"sub": LOGIN, "role": Roles.USER.value}
     mock_encode_mock = encode_mock(mocker)
     expected_expires_delta = timedelta(minutes=SECRET.ACCESS_TOKEN_EXPIRE_MINUTES)
-    expected_expires_date_time = datetime.now() + expected_expires_delta
+    expected_expires_date_time = datetime.now(tz=timezone.utc) + expected_expires_delta
     expected_data = {**input_data, "exp": expected_expires_date_time}
 
     # Act

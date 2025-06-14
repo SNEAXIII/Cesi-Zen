@@ -43,14 +43,16 @@ def custom_openapi():
         description="Documentation for Cesi Zen api backend",
         routes=app.routes,
     )
-    openapi_schema["components"]["securitySchemes"] = {
-        "bearerAuth": {
-            "type": "http",
-            "scheme": "bearer",
-            "bearerFormat": "JWT",
-        }
-    }
-    openapi_schema["security"] = [{"bearerAuth": []}]
+    ## Uncomment this code if you want to paste
+    ## jwt instead of login and password in swagger doc
+    # openapi_schema["components"]["securitySchemes"] = {
+    #     "BearerAuth": {
+    #         "type": "http",
+    #         "scheme": "bearer",
+    #         "bearerFormat": "JWT"
+    #     }
+    # }
+    # openapi_schema["security"] = [{"bearerAuth": []}]
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
