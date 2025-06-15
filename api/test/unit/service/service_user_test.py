@@ -309,7 +309,7 @@ async def test_patch_disable_user_success(mocker):
     mock_get_user = get_user_mock(mocker, fake_user)
 
     # Act
-    result = await UserService.patch_disable_user(mock_session, ID)
+    result = await UserService.admin_patch_disable_user(mock_session, ID)
 
     # Assert
     assert result is True
@@ -336,7 +336,7 @@ async def test_patch_disable_user_error(mocker, fake_user, expected_error):
 
     # Act
     with pytest.raises(UserAdminError) as error:
-        await UserService.patch_disable_user(mock_session, ID)
+        await UserService.admin_patch_disable_user(mock_session, ID)
 
     # Assert
     assert error.value.detail == str(expected_error)
@@ -352,7 +352,7 @@ async def test_patch_enable_user_success(mocker):
     mock_get_user = get_user_mock(mocker, fake_user)
 
     # Act
-    result = await UserService.patch_enable_user(mock_session, ID)
+    result = await UserService.admin_patch_enable_user(mock_session, ID)
 
     # Assert
     assert result is True
@@ -378,7 +378,7 @@ async def test_patch_enable_user_error(mocker, fake_user, expected_error):
 
     # Act
     with pytest.raises(UserAdminError) as error:
-        await UserService.patch_enable_user(mock_session, ID)
+        await UserService.admin_patch_enable_user(mock_session, ID)
 
     # Assert
     assert error.value.detail == str(expected_error)
@@ -394,7 +394,7 @@ async def test_delete_user_success(mocker):
     mock_get_user = get_user_mock(mocker, fake_user)
 
     # Act
-    result = await UserService.delete_user(mock_session, ID)
+    result = await UserService.admin_delete_user(mock_session, ID)
 
     # Assert
     assert result is True
@@ -409,8 +409,9 @@ async def test_delete_user_success(mocker):
     [
         (None, TARGET_USER_DOESNT_EXISTS),
         (User(login=LOGIN, deleted=True), TARGET_USER_IS_ALREADY_DELETED),
+        (User(login=LOGIN, role=Roles.ADMIN), TARGET_USER_IS_ADMIN),
     ],
-    ids=["user_doesnt_exists", "user_is_already_deleted"],
+    ids=["user_doesnt_exists", "user_is_already_deleted","user_is_an_admin"],
 )
 async def test_delete_user_error(mocker, fake_user, expected_error):
     # Arrange
@@ -419,7 +420,7 @@ async def test_delete_user_error(mocker, fake_user, expected_error):
 
     # Act
     with pytest.raises(UserAdminError) as error:
-        await UserService.delete_user(mock_session, ID)
+        await UserService.admin_delete_user(mock_session, ID)
 
     # Assert
     assert error.value.detail == str(expected_error)

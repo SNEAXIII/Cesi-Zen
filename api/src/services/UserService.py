@@ -84,7 +84,7 @@ class UserService:
         return result.first()
 
     @classmethod
-    async def patch_disable_user(
+    async def admin_patch_disable_user(
         cls, session: SessionDep, user_uuid: uuid.UUID
     ) -> True:
         user: Optional[User] = await UserService.get_user(session, user_uuid)
@@ -101,7 +101,7 @@ class UserService:
         return True
 
     @classmethod
-    async def patch_enable_user(cls, session: SessionDep, user_uuid: uuid.UUID) -> True:
+    async def admin_patch_enable_user(cls, session: SessionDep, user_uuid: uuid.UUID) -> True:
         user: Optional[User] = await UserService.get_user(session, user_uuid)
         if user is None:
             raise TARGET_USER_DOESNT_EXISTS
@@ -114,12 +114,14 @@ class UserService:
         return True
 
     @classmethod
-    async def delete_user(cls, session: SessionDep, user_uuid: uuid.UUID) -> True:
+    async def admin_delete_user(cls, session: SessionDep, user_uuid: uuid.UUID) -> True:
         user: Optional[User] = await UserService.get_user(session, user_uuid)
         if user is None:
             raise TARGET_USER_DOESNT_EXISTS
         if user.deleted:
             raise TARGET_USER_IS_ALREADY_DELETED
+        if user.role == Roles.ADMIN:
+            raise TARGET_USER_IS_ADMIN
         user.deleted = True
         await session.commit()
         return True
