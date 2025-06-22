@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Optional
 
 from sqlmodel import select
@@ -71,9 +72,9 @@ class UserService:
         user = await UserService.get_user_by_login(session, login)
         if user is None:
             raise USER_DOESNT_EXISTS
-        if user.deleted:
+        if user.deleted_at:
             raise USER_IS_DELETED
-        if user.disabled:
+        if user.disabled_at:
             raise USER_IS_DISABLED
         return user
 
@@ -90,13 +91,13 @@ class UserService:
         user: Optional[User] = await UserService.get_user(session, user_uuid)
         if user is None:
             raise TARGET_USER_DOESNT_EXISTS
-        if user.deleted:
+        if user.deleted_at:
             raise TARGET_USER_IS_DELETED
         if user.role == Roles.ADMIN:
             raise TARGET_USER_IS_ADMIN
-        if user.disabled:
+        if user.disabled_at:
             raise TARGET_USER_IS_ALREADY_DISABLED
-        user.disabled = True
+        user.disabled_at = datetime.now()
         await session.commit()
         return True
 
@@ -105,11 +106,11 @@ class UserService:
         user: Optional[User] = await UserService.get_user(session, user_uuid)
         if user is None:
             raise TARGET_USER_DOESNT_EXISTS
-        if user.deleted:
+        if user.deleted_at:
             raise TARGET_USER_IS_DELETED
-        if not user.disabled:
+        if not user.disabled_at:
             raise TARGET_USER_IS_ALREADY_ENABLED
-        user.disabled = False
+        user.disabled_at = None
         await session.commit()
         return True
 
@@ -118,11 +119,11 @@ class UserService:
         user: Optional[User] = await UserService.get_user(session, user_uuid)
         if user is None:
             raise TARGET_USER_DOESNT_EXISTS
-        if user.deleted:
+        if user.deleted_at:
             raise TARGET_USER_IS_ALREADY_DELETED
         if user.role == Roles.ADMIN:
             raise TARGET_USER_IS_ADMIN
-        user.deleted = True
+        user.deleted_at = datetime.now()
         await session.commit()
         return True
 

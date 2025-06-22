@@ -1,5 +1,5 @@
 from time import perf_counter
-from typing import Annotated
+from typing import Annotated, Optional
 from fastapi.openapi.utils import get_openapi
 import logging
 from fastapi import Depends, FastAPI, HTTPException
@@ -103,9 +103,9 @@ async def http_exception_handler(request: Request, exc):
     )
 
 
-@app.options("/{full_path:path}")
-async def preflight_handler(full_path: str):
-    return JSONResponse(content={}, status_code=200)
+# @app.options("/{full_path:path}")
+# async def preflight_handler(full_path: str):
+#     return JSONResponse(content={}, status_code=200)
 
 
 @app.get("/users/profile", response_model=UserProfile)
