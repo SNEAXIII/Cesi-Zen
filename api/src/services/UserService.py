@@ -31,6 +31,10 @@ from src.utils.db import SessionDep
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy import func
 
+DISABLED_STATUS = "disabled"
+DELETED_STATUS = "deleted"
+ENABLED_STATUS = "enabled"
+
 
 class UserService:
     @classmethod
@@ -102,7 +106,9 @@ class UserService:
         return True
 
     @classmethod
-    async def admin_patch_enable_user(cls, session: SessionDep, user_uuid: uuid.UUID) -> True:
+    async def admin_patch_enable_user(
+        cls, session: SessionDep, user_uuid: uuid.UUID
+    ) -> True:
         user: Optional[User] = await UserService.get_user(session, user_uuid)
         if user is None:
             raise TARGET_USER_DOESNT_EXISTS
@@ -128,26 +134,63 @@ class UserService:
         return True
 
     @classmethod
+    def build_status_filter(cls, sql, status: Optional[str]):
+        if status == DELETED_STATUS:
+            sql = sql.where(User.deleted_at != None)  # noqa: E711
+        elif status == DISABLED_STATUS:
+            sql = sql.where(User.deleted_at == None).where(User.disabled_at != None)  # noqa: E711
+        elif status == ENABLED_STATUS:
+            sql = sql.where(User.deleted_at == None).where(User.disabled_at == None)  # noqa: E711
+        return sql
+
+    @classmethod
+    def build_role_filter(cls, sql, role: Optional[Roles] = None):
+        if role in Roles.__members__.values():
+            sql = sql.where(User.role == role)  # noqa: E711
+        return sql
+
+    @classmethod
     async def get_users_paginated(
-        cls, session: SessionDep, page: int, size: int
+        cls,
+        session: SessionDep,
+        page: int,
+        size: int,
+        status: Optional[str],
+        role: Optional[Roles] = None,
     ) -> list[User]:
         offset = (page - 1) * size
-        sql = select(User).offset(offset).limit(size)
+        sql = select(User)
+        if status:
+            sql = UserService.build_status_filter(sql, status)
+        if role:
+            sql = UserService.build_role_filter(sql, role)
+        sql = sql.offset(offset).limit(size)
         result = await session.exec(sql)
         return result.all()
 
     @classmethod
-    async def get_total_users(cls, session: SessionDep) -> int:
+    async def get_total_users(
+        cls, session: SessionDep, status: Optional[str], role: Optional[Roles] = None
+    ) -> int:
         sql = select(func.count(User.id))
+        if status:
+            sql = UserService.build_status_filter(sql, status)
+        if role:
+            sql = UserService.build_role_filter(sql, role)
         result = await session.exec(sql)
         return result.one()
 
     @classmethod
     async def get_users_with_pagination(
-        cls, session: SessionDep, page: int, size: int
+        cls,
+        session: SessionDep,
+        page: int,
+        size: int,
+        status: Optional[str] = None,
+        role: Optional[Roles] = None,
     ) -> UserAdminViewAllUsers:
-        total_users = await UserService.get_total_users(session)
-        users = await UserService.get_users_paginated(session, page, size)
+        total_users = await UserService.get_total_users(session, status, role)
+        users = await UserService.get_users_paginated(session, page, size, status, role)
         total_pages = (total_users + size - 1) // size
         mapped_users = [
             UserAdminViewSingleUser.model_validate(user.model_dump()) for user in users

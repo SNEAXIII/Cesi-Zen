@@ -36,6 +36,8 @@ LOGIN = "User"
 EMAIL = "user@gmail.com"
 TOKEN = "token"
 PASSWORD = "ComplexPassword1!"
+ROLE = None
+STATUS = None
 PAGE = 1
 SIZE = 10
 
@@ -194,7 +196,7 @@ async def test_get_users_paginated(mocker):
     mock_session.exec.return_value = mock_exec_result
 
     # Act
-    await UserService.get_users_paginated(mock_session, PAGE, SIZE)
+    await UserService.get_users_paginated(mock_session, PAGE, SIZE, STATUS, ROLE)
 
     # Assert
     mock_session.exec.assert_called_once()
@@ -209,7 +211,7 @@ async def test_get_total_users(mocker):
     mock_session.exec.return_value = mock_exec_result
 
     # Act
-    await UserService.get_total_users(mock_session)
+    await UserService.get_total_users(mock_session, STATUS, ROLE)
 
     # Assert
     mock_session.exec.assert_called_once()
@@ -241,8 +243,10 @@ async def test_get_users_with_pagination(mocker):
     assert result.total_users == total_user_result
     assert result.total_pages == 5
     assert result.current_page == PAGE
-    mock_get_total_users.assert_called_once_with(mock_session)
-    mock_get_users_paginated.assert_called_once_with(mock_session, PAGE, SIZE)
+    mock_get_total_users.assert_called_once_with(mock_session, STATUS, ROLE)
+    mock_get_users_paginated.assert_called_once_with(
+        mock_session, PAGE, SIZE, STATUS, ROLE
+    )
 
 
 @pytest.mark.asyncio
@@ -301,6 +305,7 @@ async def test_get_user_by_login_with_validity_check_error(
     # Assert
     assert error.value.detail == str(expected_error)
     mock_user_by_login.assert_called_once_with(mock_session, LOGIN)
+
 
 @freeze_time(datetime.now())
 @pytest.mark.asyncio
@@ -387,6 +392,7 @@ async def test_patch_enable_user_error(mocker, fake_user, expected_error):
     mock_get_user.assert_called_once_with(mock_session, ID)
     mock_session.commit.assert_not_called()
 
+
 @freeze_time(datetime.now())
 @pytest.mark.asyncio
 async def test_delete_user_success(mocker):
@@ -413,7 +419,7 @@ async def test_delete_user_success(mocker):
         (User(login=LOGIN, deleted_at=datetime.now()), TARGET_USER_IS_ALREADY_DELETED),
         (User(login=LOGIN, role=Roles.ADMIN), TARGET_USER_IS_ADMIN),
     ],
-    ids=["user_doesnt_exists", "user_is_already_deleted","user_is_an_admin"],
+    ids=["user_doesnt_exists", "user_is_already_deleted", "user_is_an_admin"],
 )
 async def test_delete_user_error(mocker, fake_user, expected_error):
     # Arrange
