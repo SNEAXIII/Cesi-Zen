@@ -7,6 +7,7 @@ from src.dto.dto_token import LoginResponse
 from src.dto.dto_utilisateurs import (
     CreateUser,
     SuccessfullyCreatedUtilisateur,
+    UserProfile,
 )
 from src.models import User
 from src.services.JWTService import JWTService
@@ -37,6 +38,13 @@ async def login_for_access_token(
         access_token=access_token,
         # refresh_token=refresh_token,
     )
+
+
+@auth_controller.get("/session", response_model=UserProfile)
+async def read_users_me(
+    current_user: Annotated[User, Depends(AuthService.get_current_user_in_jwt)],
+):
+    return current_user
 
 
 # @auth_controller.post("/refresh", response_model=RefreshResponse, status_code=200)

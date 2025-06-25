@@ -1,8 +1,7 @@
 from time import perf_counter
-from typing import Annotated, Optional
 from fastapi.openapi.utils import get_openapi
 import logging
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from icecream import ic
 from starlette import status
@@ -11,11 +10,6 @@ from starlette.responses import JSONResponse
 
 from src.controllers.admin_controller import admin_controller
 from src.controllers.auth_controller import auth_controller
-from src.dto.dto_utilisateurs import (
-    UserProfile,
-)
-from src.models import User
-from src.services.AuthService import AuthService
 from fastapi.middleware.cors import CORSMiddleware
 # ic.disable()
 
@@ -68,7 +62,9 @@ async def check_user_role(
 ):
     uri = request.url.path.rstrip("/")
     method = request.method
+    body = await request.body()
     ic(f"Requested {method} {uri = }")
+    ic(f"Body {body}")
     start_time = perf_counter()
     response = await next_function(request)
     process_time = perf_counter() - start_time
@@ -101,18 +97,6 @@ async def http_exception_handler(request: Request, exc):
         status_code=exc.status_code,
         content={"message": exc.detail},
     )
-
-
-# @app.options("/{full_path:path}")
-# async def preflight_handler(full_path: str):
-#     return JSONResponse(content={}, status_code=200)
-
-
-@app.get("/users/profile", response_model=UserProfile)
-async def read_users_me(
-    current_user: Annotated[User, Depends(AuthService.get_current_user_in_jwt)],
-):
-    return current_user
 
 
 ic(app.routes)
