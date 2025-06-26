@@ -23,7 +23,6 @@ export default function UsersPage() {
   const [canReset, setCanReset] = useState(false);
 
   function resetPagination() {
-    setCanReset(false);
     setUsersPerPage(BASE_USERS_PER_PAGE);
     setSelectedStatus(BASE_SELECTED_STATUS);
     setSelectedRole(BASE_SELECTED_ROLE);
@@ -51,14 +50,11 @@ export default function UsersPage() {
 
   useEffect(() => {
     const loadUsers = async () => {
+      setCanReset(false);
       const session = await getSession();
       const token = session?.accessToken;
-      if (!canReset) {
-        setCanReset(true);
-      }
       if (!users) {
         setIsLoading(true);
-        setCanReset(false);
       }
       try {
         const data = await getUsers(
@@ -76,6 +72,13 @@ export default function UsersPage() {
         console.error('Erreur lors du chargement des utilisateurs:', error);
       } finally {
         setIsLoading(false);
+        setCanReset(
+          !(
+            usersPerPage === BASE_USERS_PER_PAGE &&
+            selectedStatus === BASE_SELECTED_STATUS &&
+            selectedRole === BASE_SELECTED_ROLE
+          )
+        );
       }
     };
     loadUsers();
