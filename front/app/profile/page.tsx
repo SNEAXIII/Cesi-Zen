@@ -32,6 +32,18 @@ export default function ProfilePage() {
                 <p className="text-sm font-medium text-gray-500">Email</p>
                 <p className="mt-1 text-gray-800">{session?.user?.email || 'Non défini'}</p>
               </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Rôle</p>
+                <p className="mt-1 text-gray-800 capitalize">
+                  {session?.user?.role ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {session.user.role.toLowerCase()}
+                    </span>
+                  ) : (
+                    'Non défini'
+                  )}
+                </p>
+              </div>
             </div>
           </div>
           
