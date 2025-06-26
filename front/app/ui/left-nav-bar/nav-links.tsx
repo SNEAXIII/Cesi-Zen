@@ -1,5 +1,5 @@
 'use client';
-import { MdOutlineAdminPanelSettings } from 'react-icons/md';
+import { MdOutlineAdminPanelSettings, MdPersonOutline } from 'react-icons/md';
 import { IoHomeOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -13,6 +13,11 @@ export default function NavLinks() {
       name: 'Administration',
       href: '/dashboard',
       icon: MdOutlineAdminPanelSettings,
+    },
+    {
+      name: 'Mon Profil',
+      href: '/profile',
+      icon: MdPersonOutline,
     },
   ];
   return (
