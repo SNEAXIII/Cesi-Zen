@@ -25,7 +25,7 @@ NOT_STR = "Ce champ doit être une chaine de caractère"
 EMAIL_INVALID = "L'email saisi est invalide"
 LOGIN_WRONG_SIZE = "Le nom d'utilisateur doit faire entre %d et %d caractères!"
 LOGIN_NON_ALPHANUM = (
-    "Le nom d'utilisateur ne doit contenir que des caractères alphanumériques !"
+    "Le nom d'utilisateur ne doit contenir que des chiffres et des lettres!"
 )
 PASSWORD_WRONG_SIZE = "faire entre %d et %d caractères"
 PASSWORD_NEED_DIGIT = "contenir un chiffre"

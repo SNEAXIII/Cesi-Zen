@@ -1,18 +1,19 @@
-from email_validator import EmailSyntaxError
-from fastapi.exceptions import RequestValidationError
 import hmac
 
 import email_validator
-
+from email_validator import EmailSyntaxError
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationInfo
 from src.Messages.user_messages import (
-    PASSWORD_WRONG_SIZE,
-    PASSWORD_NEED_UPPER,
+    EMAIL_INVALID,
+    LOGIN_NON_ALPHANUM,
+    LOGIN_WRONG_SIZE,
+    NOT_STR,
+    PASSWORD_NEED_DIGIT,
     PASSWORD_NEED_LOWER,
     PASSWORD_NEED_SPECIAL,
-    NOT_STR,
-    EMAIL_INVALID,
-    LOGIN_WRONG_SIZE,
-    LOGIN_NON_ALPHANUM, PASSWORD_NEED_DIGIT,
+    PASSWORD_NEED_UPPER,
+    PASSWORD_WRONG_SIZE,
 )
 from src.Messages.validators_messages import PASSWORD_UNEQUAL_ERROR
 
@@ -65,7 +66,9 @@ def password_validator(password: str) -> str:
     return password
 
 
-def verify_password_match(values: dict) -> dict:
-    if not hmac.compare_digest(values.get("password"), values.get("confirm_password")):
+def verify_password_match(value: str, info: ValidationInfo) -> str:
+    if "password" in info.data and not hmac.compare_digest(
+        info.data["password"], value
+    ):
         raise RequestValidationError(errors=[PASSWORD_UNEQUAL_ERROR])
-    return values
+    return value

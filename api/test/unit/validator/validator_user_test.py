@@ -110,28 +110,28 @@ def test_password_validator_wrong(password, expected_errors: list[str]):
 def test_verify_password_match_success(mocker):
     # Arrange
     mock_compare_digest = compare_digest_mock(mocker, True)
-    values = {"password": PASSWORD, "confirm_password": PASSWORD}
+    values = mocker.Mock(data={"password": PASSWORD})
 
     # Act
-    result = verify_password_match(values)
+    result = verify_password_match(PASSWORD, values)
 
     # Assert
-    assert values is result
+    assert PASSWORD is result
     mock_compare_digest.assert_called_once_with(PASSWORD, PASSWORD)
 
 
 def test_verify_password_match_error(mocker):
     # Arrange
     mock_compare_digest = compare_digest_mock(mocker, False)
-    values = {"password": PASSWORD, "confirm_password": WRONG_PASSWORD}
+    values = mocker.Mock(data={"password": WRONG_PASSWORD})
 
     # Act
     with pytest.raises(RequestValidationError) as error:
-        verify_password_match(values)
+        verify_password_match(PASSWORD, values)
 
     # Assert
     assert error.value.errors() == [PASSWORD_UNEQUAL_ERROR]
-    mock_compare_digest.assert_called_once_with(PASSWORD, WRONG_PASSWORD)
+    mock_compare_digest.assert_called_once_with(WRONG_PASSWORD, PASSWORD)
 
 
 def test_email_validator_success(mocker):

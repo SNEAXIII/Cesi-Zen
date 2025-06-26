@@ -18,7 +18,7 @@ class Passwords(BaseModel):
     password_validator = field_validator("password", mode="after")(password_validator)
     password: str = Field(examples=["Securepass1!"])
 
-    confirm_password_validator = model_validator(mode="before")(verify_password_match)
+    confirm_password_validator = field_validator("confirm_password", mode="after")(verify_password_match)
     confirm_password: str = Field(examples=["Securepass1!"])
 
 
