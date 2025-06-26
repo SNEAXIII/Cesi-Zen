@@ -19,7 +19,7 @@ class UserAdminError(HTTPException):
 
 USER_IS_DISABLED = UserLoginError("Ce compte est désactivé")
 USER_IS_DELETED = UserLoginError("Ce compte est supprimé")
-USER_DOESNT_EXISTS = UserLoginError("Ce compte n'existe pas")
+USER_DOESNT_EXISTS = UserLoginError("Le nom d'utilisateur ou le mot de passe sont incorrect")
 
 NOT_STR = "Ce champ doit être une chaine de caractère"
 EMAIL_INVALID = "L'email saisi est invalide"

@@ -19,6 +19,7 @@ from src.models import User
 from src.security.secrets import SECRET
 from src.services.JWTService import JWTService
 
+ID = "UUIDV4"
 LOGIN = "User"
 TOKEN = "token"
 HASHED_PASSWORD = "hash"
@@ -127,7 +128,12 @@ def test_create_access_token_success(mocker):
     # Arrange
     user = get_user()
     mock_create_token = create_token_mock(mocker)
-    expected_data = {"sub": user.login, "role": user.role}
+    expected_data = {
+        "user_id": str(user.id),
+        "sub": user.login,
+        "email": user.email,
+        "role": user.role,
+    }
     expected_expires_delta = timedelta(minutes=SECRET.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     # Act

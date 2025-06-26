@@ -10,10 +10,10 @@ class ExerciseCoherenceCardiac(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    durationInspiration: float
-    durationApnea: float
-    durationExpiration: float
-    numberCycles: int
+    duration_inspiration: float
+    duration_apnea: float
+    duration_expiration: float
+    number_cycles: int
 
     # Relations
     logs: List["ExerciseLog"] = Relationship(back_populates="exercise")

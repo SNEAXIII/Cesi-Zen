@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends
 
@@ -8,6 +9,7 @@ from src.Messages.user_messages import (
     TARGET_USER_DELETED_SUCCESSFULLY,
 )
 from src.dto.dto_utilisateurs import UserAdminViewAllUsers
+from src.enums.Roles import Roles
 from src.services.AuthService import AuthService
 from src.services.UserService import UserService
 from src.utils.db import SessionDep
@@ -16,14 +18,20 @@ admin_controller = APIRouter(
     prefix="/admin",
     tags=["Admin"],
     dependencies=[
-        # Depends(AuthService.is_logged_as_admin),
-        # Depends(AuthService.get_current_user_in_jwt),
+        Depends(AuthService.is_logged_as_admin),
+        Depends(AuthService.get_current_user_in_jwt),
     ],
 )
 
 
 @admin_controller.get("/users", status_code=200, response_model=UserAdminViewAllUsers)
-async def get_users(session: SessionDep, page: int = 1, size: int = 10):
+async def get_users(
+    session: SessionDep,
+    page: int = 1,
+    size: int = 10,
+    status: Optional[str] = None,
+    role: Optional[Roles] = None,
+):
     if page < 1:
         raise HTTPException(
             status_code=400, detail="Le numéro de la page doit être positif"
@@ -32,7 +40,9 @@ async def get_users(session: SessionDep, page: int = 1, size: int = 10):
         raise HTTPException(
             status_code=400, detail="Le taille de la page doit être positif"
         )
-    result = await UserService.get_users_with_pagination(session, page, size)
+    result = await UserService.get_users_with_pagination(
+        session, page, size, status, role
+    )
     return result
 
 

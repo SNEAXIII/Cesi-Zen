@@ -19,8 +19,8 @@ class User(SQLModel, table=True):
     login: str = Field(unique=True)
     email: str = Field(unique=True)
     hashed_password: str
-    disabled: bool = False
-    deleted: bool = False
+    disabled_at: Optional[datetime] = Field(default=None)
+    deleted_at: Optional[datetime] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.now)
     last_login_date: Optional[datetime] = Field(default=None)
     role: Roles = Field(default=Roles.USER)

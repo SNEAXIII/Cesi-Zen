@@ -30,12 +30,17 @@ class JWTService:
         return encoded_jwt
 
     @classmethod
-    def create_access_token(cls, user: Optional[User]):
+    def create_access_token(cls, user: Optional[User]) -> str:
         if not user:
             raise CREDENTIALS_EXCEPTION
         access_token_expires = timedelta(minutes=SECRET.ACCESS_TOKEN_EXPIRE_MINUTES)
         return JWTService.create_token(
-            data={"sub": user.login, "role": user.role},
+            data={
+                "user_id": str(user.id),
+                "sub": user.login,
+                "email": user.email,
+                "role": user.role,
+            },
             expires_delta=access_token_expires,
         )
 

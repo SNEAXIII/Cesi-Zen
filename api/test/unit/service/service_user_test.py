@@ -1,8 +1,10 @@
 import uuid
+from datetime import datetime
 from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.exceptions import RequestValidationError
+from freezegun import freeze_time
 
 from src.Messages.user_messages import (
     USER_DOESNT_EXISTS,
@@ -34,6 +36,8 @@ LOGIN = "User"
 EMAIL = "user@gmail.com"
 TOKEN = "token"
 PASSWORD = "ComplexPassword1!"
+ROLE = None
+STATUS = None
 PAGE = 1
 SIZE = 10
 
@@ -192,7 +196,7 @@ async def test_get_users_paginated(mocker):
     mock_session.exec.return_value = mock_exec_result
 
     # Act
-    await UserService.get_users_paginated(mock_session, PAGE, SIZE)
+    await UserService.get_users_paginated(mock_session, PAGE, SIZE, STATUS, ROLE)
 
     # Assert
     mock_session.exec.assert_called_once()
@@ -207,7 +211,7 @@ async def test_get_total_users(mocker):
     mock_session.exec.return_value = mock_exec_result
 
     # Act
-    await UserService.get_total_users(mock_session)
+    await UserService.get_total_users(mock_session, STATUS, ROLE)
 
     # Assert
     mock_session.exec.assert_called_once()
@@ -239,8 +243,10 @@ async def test_get_users_with_pagination(mocker):
     assert result.total_users == total_user_result
     assert result.total_pages == 5
     assert result.current_page == PAGE
-    mock_get_total_users.assert_called_once_with(mock_session)
-    mock_get_users_paginated.assert_called_once_with(mock_session, PAGE, SIZE)
+    mock_get_total_users.assert_called_once_with(mock_session, STATUS, ROLE)
+    mock_get_users_paginated.assert_called_once_with(
+        mock_session, PAGE, SIZE, STATUS, ROLE
+    )
 
 
 @pytest.mark.asyncio
@@ -280,8 +286,8 @@ async def test_get_user_by_login_with_validity_check_success(mocker):
     "fake_user,expected_error",
     [
         (None, USER_DOESNT_EXISTS),
-        (User(login=LOGIN, deleted=True), USER_IS_DELETED),
-        (User(login=LOGIN, disabled=True), USER_IS_DISABLED),
+        (User(login=LOGIN, deleted_at=datetime.now()), USER_IS_DELETED),
+        (User(login=LOGIN, disabled_at=True), USER_IS_DISABLED),
     ],
     ids=["user_doesnt_exists", "deleted", "disabled"],
 )
@@ -301,6 +307,7 @@ async def test_get_user_by_login_with_validity_check_error(
     mock_user_by_login.assert_called_once_with(mock_session, LOGIN)
 
 
+@freeze_time(datetime.now())
 @pytest.mark.asyncio
 async def test_patch_disable_user_success(mocker):
     # Arrange
@@ -313,7 +320,7 @@ async def test_patch_disable_user_success(mocker):
 
     # Assert
     assert result is True
-    assert fake_user.disabled is True
+    assert fake_user.disabled_at == datetime.now()
     mock_get_user.assert_called_once_with(mock_session, ID)
     mock_session.commit.assert_called_once_with()
 
@@ -323,9 +330,9 @@ async def test_patch_disable_user_success(mocker):
     "fake_user,expected_error",
     [
         (None, TARGET_USER_DOESNT_EXISTS),
-        (User(login=LOGIN, deleted=True), TARGET_USER_IS_DELETED),
+        (User(login=LOGIN, deleted_at=datetime.now()), TARGET_USER_IS_DELETED),
         (User(login=LOGIN, role=Roles.ADMIN), TARGET_USER_IS_ADMIN),
-        (User(login=LOGIN, disabled=True), TARGET_USER_IS_ALREADY_DISABLED),
+        (User(login=LOGIN, disabled_at=True), TARGET_USER_IS_ALREADY_DISABLED),
     ],
     ids=["user_doesnt_exists", "user_is_deleted", "user_is_admin", "user_is_disabled"],
 )
@@ -347,7 +354,7 @@ async def test_patch_disable_user_error(mocker, fake_user, expected_error):
 @pytest.mark.asyncio
 async def test_patch_enable_user_success(mocker):
     # Arrange
-    fake_user = User(login=LOGIN, disabled=True)
+    fake_user = User(login=LOGIN, disabled_at=True)
     mock_session = session_mock(mocker)
     mock_get_user = get_user_mock(mocker, fake_user)
 
@@ -356,7 +363,7 @@ async def test_patch_enable_user_success(mocker):
 
     # Assert
     assert result is True
-    assert fake_user.disabled is False
+    assert fake_user.disabled_at is None
     mock_get_user.assert_called_once_with(mock_session, ID)
     mock_session.commit.assert_called_once_with()
 
@@ -366,7 +373,7 @@ async def test_patch_enable_user_success(mocker):
     "fake_user,expected_error",
     [
         (None, TARGET_USER_DOESNT_EXISTS),
-        (User(login=LOGIN, deleted=True), TARGET_USER_IS_DELETED),
+        (User(login=LOGIN, deleted_at=datetime.now()), TARGET_USER_IS_DELETED),
         (User(login=LOGIN), TARGET_USER_IS_ALREADY_ENABLED),
     ],
     ids=["user_doesnt_exists", "user_is_deleted", "user_is_disabled"],
@@ -386,6 +393,7 @@ async def test_patch_enable_user_error(mocker, fake_user, expected_error):
     mock_session.commit.assert_not_called()
 
 
+@freeze_time(datetime.now())
 @pytest.mark.asyncio
 async def test_delete_user_success(mocker):
     # Arrange
@@ -398,7 +406,7 @@ async def test_delete_user_success(mocker):
 
     # Assert
     assert result is True
-    assert fake_user.deleted is True
+    assert fake_user.deleted_at == datetime.now()
     mock_get_user.assert_called_once_with(mock_session, ID)
     mock_session.commit.assert_called_once_with()
 
@@ -408,10 +416,10 @@ async def test_delete_user_success(mocker):
     "fake_user,expected_error",
     [
         (None, TARGET_USER_DOESNT_EXISTS),
-        (User(login=LOGIN, deleted=True), TARGET_USER_IS_ALREADY_DELETED),
+        (User(login=LOGIN, deleted_at=datetime.now()), TARGET_USER_IS_ALREADY_DELETED),
         (User(login=LOGIN, role=Roles.ADMIN), TARGET_USER_IS_ADMIN),
     ],
-    ids=["user_doesnt_exists", "user_is_already_deleted","user_is_an_admin"],
+    ids=["user_doesnt_exists", "user_is_already_deleted", "user_is_an_admin"],
 )
 async def test_delete_user_error(mocker, fake_user, expected_error):
     # Arrange
