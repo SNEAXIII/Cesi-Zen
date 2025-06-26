@@ -5,6 +5,7 @@ import Loading from '@/app/dashboard/loading';
 import RenderUserDashboard from '@/app/ui/dashboard/table/render-user-dashboard';
 import PaginationControls from '@/app/ui/dashboard/pagination/pagination-controls';
 import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table/table-header';
+import { getSession } from 'next-auth/react';
 
 const BASE_CURRENT_PAGE = 1;
 const BASE_TOTAL_PAGE = 1;
@@ -50,6 +51,8 @@ export default function UsersPage() {
 
   useEffect(() => {
     const loadUsers = async () => {
+      const session = await getSession();
+      const token = session?.accessToken;
       if (!canReset) {
         setCanReset(true);
       }
@@ -62,7 +65,8 @@ export default function UsersPage() {
           Math.max(currentPage, 1),
           usersPerPage,
           selectedStatus,
-          selectedRole
+          selectedRole,
+          token
         );
         setUsers(data.users);
         setCurrentPage(Math.min(currentPage, data.total_pages));

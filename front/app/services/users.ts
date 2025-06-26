@@ -18,23 +18,60 @@ export interface FetchUsersResponse {
   current_page: number;
 }
 
+interface ApiError {
+  detail?: string;
+  message?: string;
+  statusCode?: number;
+}
+
 export const getUsers = async (
   page: number = 1,
   size: number = 10,
   status: string | null = null,
-  role: string | null = null
+  role: string | null = null,
+  token?: string
 ): Promise<FetchUsersResponse> => {
-  const query_status = status&&status != possibleStatus[0].value ? `&status=${status}` : '';
-  const query_role = role &&role != possibleRoles[0].value ? `&role=${role}` : '';
-  const url = `http://127.0.0.1:8000/admin/users?page=${page}&size=${size}${query_status}${query_role}`;
-  const headers = {
-    accept: 'application/json',
-    Authorization:
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVc2VyIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzQ5OTA2Mjg4fQ.sIlESn-ge-7Z5D0lNu9BINDT6GCZVV0Au7x4xcsC0RU',
-  };
-  const response = await fetch(url, { headers });
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}error: ${response.body}`);
+  try {
+    const query_status = status && status !== possibleStatus[0].value ? `&status=${status}` : '';
+    const query_role = role && role !== possibleRoles[0].value ? `&role=${role}` : '';
+    const url = `http://127.0.0.1:8000/admin/users?page=${page}&size=${size}${query_status}${query_role}`;
+
+    const headers: HeadersInit = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('Using token for authorization');
+    } else {
+      console.warn('No token provided for authentication');
+    }
+
+    const response = await fetch(url, {
+      headers,
+      mode: 'cors',
+    });
+
+    if (!response.ok) {
+      let errorData: ApiError = {};
+      try {
+        errorData = await response.json();
+        console.error('API Error:', errorData);
+      } catch (e) {
+        console.error('Failed to parse error response:', e);
+      }
+
+      const errorMessage = errorData.detail || errorData.message || 'Erreur inconnue';
+      const error = new Error(`Erreur ${response.status}: ${errorMessage}`);
+      (error as any).status = response.status;
+      throw error;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erreur dans getUsers:', error);
+    throw error instanceof Error
+      ? error
+      : new Error('Une erreur inattendue est survenue lors de la récupération des utilisateurs');
   }
-  return response.json();
 };
