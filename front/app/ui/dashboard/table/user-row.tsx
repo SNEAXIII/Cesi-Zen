@@ -15,9 +15,10 @@ interface UserRowProps {
   onDisable: (userId: string) => void;
   onEnable: (userId: string) => void;
   onDelete: (userId: string) => void;
+  onPromoteToAdmin: (userId: string) => void;
 }
 
-export function UserRow({ user, onDisable, onEnable, onDelete }: UserRowProps) {
+export function UserRow({ user, onDisable, onEnable, onDelete ,onPromoteToAdmin}: UserRowProps) {
   return (
     <TableRow>
       <RowUserLogin login={user.login} />
@@ -37,6 +38,7 @@ export function UserRow({ user, onDisable, onEnable, onDelete }: UserRowProps) {
         onDisable={onDisable}
         onEnable={onEnable}
         onDelete={onDelete}
+        onPromoteToAdmin={onPromoteToAdmin}
       />
     </TableRow>
   );

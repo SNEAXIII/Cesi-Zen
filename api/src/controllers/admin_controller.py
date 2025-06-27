@@ -1,15 +1,15 @@
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Depends
-
-from src.Messages.user_messages import (
-    TARGET_USER_DISABLED_SUCCESSFULLY,
-    TARGET_USER_ENABLED_SUCCESSFULLY,
-    TARGET_USER_DELETED_SUCCESSFULLY,
-)
+from fastapi import APIRouter, Depends, HTTPException
 from src.dto.dto_utilisateurs import UserAdminViewAllUsers
 from src.enums.Roles import Roles
+from src.Messages.user_messages import (
+    TARGET_USER_DELETED_SUCCESSFULLY,
+    TARGET_USER_DISABLED_SUCCESSFULLY,
+    TARGET_USER_ENABLED_SUCCESSFULLY,
+    TARGET_USER_PROMOTED_SUCCESSFULLY,
+)
 from src.services.AuthService import AuthService
 from src.services.UserService import UserService
 from src.utils.db import SessionDep
@@ -62,3 +62,9 @@ async def patch_enable_user(session: SessionDep, user_uuid_to_enable: uuid.UUID)
 async def delete_user(session: SessionDep, user_uuid_to_delete: uuid.UUID):
     await UserService.admin_delete_user(session, user_uuid_to_delete)
     return {"message": TARGET_USER_DELETED_SUCCESSFULLY}
+
+
+@admin_controller.patch("/users/promote/{user_uuid_to_promote}", status_code=200)
+async def patch_promote_user(session: SessionDep, user_uuid_to_promote: uuid.UUID):
+    await UserService.admin_patch_promote_user(session, user_uuid_to_promote)
+    return {"message": TARGET_USER_PROMOTED_SUCCESSFULLY}

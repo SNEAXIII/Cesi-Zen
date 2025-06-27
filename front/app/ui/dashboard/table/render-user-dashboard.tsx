@@ -10,6 +10,7 @@ interface RenderUserDashboardProps {
   onDisable: (userId: string) => void;
   onEnable: (userId: string) => void;
   onDelete: (userId: string) => void;
+  onPromoteToAdmin: (userId: string) => void;
 }
 
 export default function RenderUserDashboard({
@@ -22,6 +23,7 @@ export default function RenderUserDashboard({
   onDisable,
   onEnable,
   onDelete,
+  onPromoteToAdmin,
 }: RenderUserDashboardProps & AllSelectorProps) {
   return (
     <div className='container mx-auto py-6'>
@@ -40,6 +42,7 @@ export default function RenderUserDashboard({
               onDisable={onDisable}
               onEnable={onEnable}
               onDelete={onDelete}
+              onPromoteToAdmin={onPromoteToAdmin}
             />
           ))}
         </TableBody>

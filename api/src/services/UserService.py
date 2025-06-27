@@ -12,6 +12,7 @@ from src.Messages.user_messages import (
     TARGET_USER_DOESNT_EXISTS,
     TARGET_USER_IS_ADMIN,
     TARGET_USER_IS_ALREADY_ENABLED,
+    TARGET_USER_IS_ALREADY_ADMIN,
     TARGET_USER_IS_DELETED,
     TARGET_USER_IS_ALREADY_DELETED,
 )
@@ -138,6 +139,21 @@ class UserService:
         if current_user.deleted_at:
             raise TARGET_USER_IS_ALREADY_DELETED
         current_user.deleted_at = datetime.now()
+        await session.commit()
+        return True
+
+    @classmethod
+    async def admin_patch_promote_user(
+        cls, session: SessionDep, user_uuid: uuid.UUID
+    ) -> True:
+        user: Optional[User] = await UserService.get_user(session, user_uuid)
+        if user is None:
+            raise TARGET_USER_DOESNT_EXISTS
+        if user.deleted_at:
+            raise TARGET_USER_IS_DELETED
+        if user.role == Roles.ADMIN:
+            raise TARGET_USER_IS_ALREADY_ADMIN
+        user.role = Roles.ADMIN
         await session.commit()
         return True
 

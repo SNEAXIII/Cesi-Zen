@@ -12,6 +12,7 @@ import { MoreHorizontal, Power, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ConfirmationDialog } from '@/app/ui/dashboard/dialogs/confirmation-dialog';
+import { IoChevronUpOutline } from 'react-icons/io5';
 
 interface UserActionsProps {
   userId: string;
@@ -21,6 +22,7 @@ interface UserActionsProps {
   onDisable: (userId: string) => void;
   onEnable: (userId: string) => void;
   onDelete: (userId: string) => void;
+  onPromoteToAdmin: (userId: string) => void;
 }
 
 export function UserActions({
@@ -31,9 +33,11 @@ export function UserActions({
   onDisable,
   onEnable,
   onDelete,
+  onPromoteToAdmin,
 }: UserActionsProps) {
   const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPromoteToAdminDialogOpen, setIsPromoteToAdminDialogOpen] = useState(false);
   const isDisabledOrAdmin = isDeleted || isAdmin;
   if (isDisabledOrAdmin) {
     return (
@@ -76,6 +80,13 @@ export function UserActions({
         {/*TODO REFACTOR HERE*/}
         {!isDeleted && (
           <DropdownMenuContent align='end'>
+            <DropdownMenuItem
+              onClick={() => setIsPromoteToAdminDialogOpen(true)}
+              className='text-blue-600'
+            >
+              <IoChevronUpOutline className='mr-2 h-4 w-4' />
+              Promouvoir en administrateur
+            </DropdownMenuItem>
             {isDisabled ? (
               <DropdownMenuItem
                 className='text-green-600'
@@ -140,6 +151,17 @@ export function UserActions({
         }}
         variant='destructive'
         confirmText='Supprimer'
+      />
+      <ConfirmationDialog
+        open={isPromoteToAdminDialogOpen}
+        onOpenChange={setIsPromoteToAdminDialogOpen}
+        title='Promouvoir en administrateur'
+        description='Êtes-vous sûr de vouloir promouvoir cet utilisateur en administrateur ?'
+        onConfirm={() => {
+          onPromoteToAdmin(userId);
+          setIsPromoteToAdminDialogOpen(false);
+        }}
+        confirmText='Promouvoir'
       />
     </TableCell>
   );

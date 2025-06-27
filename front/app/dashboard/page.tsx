@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { getUsers, User } from '@/app/services/users';
+import { getUsers, promoteToAdmin, User } from '@/app/services/users';
 import Loading from '@/app/dashboard/loading';
 import RenderUserDashboard from '@/app/ui/dashboard/table/render-user-dashboard';
 import PaginationControls from '@/app/ui/dashboard/pagination/pagination-controls';
@@ -22,6 +22,50 @@ export default function UsersPage() {
   const [selectedRole, setSelectedRole] = useState(BASE_SELECTED_ROLE);
   const [canReset, setCanReset] = useState(false);
   const [fetchUsersError, setFetchUsersError] = useState('');
+
+  const loadUsers = async () => {
+    setCanReset(false);
+    setFetchUsersError('');
+    const session = await getSession();
+    const token = session?.accessToken;
+    if (!users) {
+      setIsLoading(true);
+    }
+    try {
+      const data = await getUsers(
+        Math.max(currentPage, 1),
+        usersPerPage,
+        selectedStatus,
+        selectedRole,
+        token
+      );
+      setUsers(data.users);
+      setCurrentPage(Math.min(currentPage, data.total_pages));
+      setTotalPage(data.total_pages);
+    } catch (error) {
+      console.error('Erreur lors du chargement des utilisateurs:', error);
+      let errorMessage: string;
+      if ((error as Error).message) {
+        errorMessage = (error as Error).message;
+      } else {
+        errorMessage = 'Une erreur est survenue lors du chargement des utilisateurs';
+      }
+      setFetchUsersError(errorMessage);
+    } finally {
+      setIsLoading(false);
+      setCanReset(
+        !(
+          usersPerPage === BASE_USERS_PER_PAGE &&
+          selectedStatus === BASE_SELECTED_STATUS &&
+          selectedRole === BASE_SELECTED_ROLE
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, [currentPage, usersPerPage, selectedStatus, selectedRole]);
 
   function resetPagination() {
     setUsersPerPage(BASE_USERS_PER_PAGE);
@@ -49,49 +93,6 @@ export default function UsersPage() {
     goToPage1();
   }
 
-  useEffect(() => {
-    const loadUsers = async () => {
-      setCanReset(false);
-      setFetchUsersError('');
-      const session = await getSession();
-      const token = session?.accessToken;
-      if (!users) {
-        setIsLoading(true);
-      }
-      try {
-        const data = await getUsers(
-          Math.max(currentPage, 1),
-          usersPerPage,
-          selectedStatus,
-          selectedRole,
-          token
-        );
-        setUsers(data.users);
-        setCurrentPage(Math.min(currentPage, data.total_pages));
-        setTotalPage(data.total_pages);
-        console.log(currentPage, totalPage);
-      } catch (error) {
-        console.error('Erreur lors du chargement des utilisateurs:', error);
-        let errorMessage: string;
-        if ((error as Error).message ) {
-          errorMessage = (error as Error).message;
-        } else {
-          errorMessage = 'Une erreur est survenue lors du chargement des utilisateurs';
-        }
-        setFetchUsersError(errorMessage);
-      } finally {
-        setIsLoading(false);
-        setCanReset(
-          !(
-            usersPerPage === BASE_USERS_PER_PAGE &&
-            selectedStatus === BASE_SELECTED_STATUS &&
-            selectedRole === BASE_SELECTED_ROLE
-          )
-        );
-      }
-    };
-    loadUsers();
-  }, [currentPage, usersPerPage, selectedStatus, selectedRole]);
   const handleNextPage = () => {
     setCurrentPage((page) => page + 1);
   };
@@ -112,6 +113,8 @@ export default function UsersPage() {
       // TODO: Implémenter l'action de désactivation
     } catch (error) {
       console.error('Erreur lors de la désactivation:', error);
+    } finally {
+      loadUsers();
     }
   };
 
@@ -121,6 +124,8 @@ export default function UsersPage() {
       // TODO: Implémenter l'action d'activation
     } catch (error) {
       console.error("Erreur lors de l'activation:", error);
+    } finally {
+      loadUsers();
     }
   };
 
@@ -130,6 +135,19 @@ export default function UsersPage() {
       // TODO: Implémenter l'action de suppression
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
+    } finally {
+      loadUsers();
+    }
+  };
+  const handlePromoteToAdmin = async (userId: string) => {
+    try {
+      const session = await getSession();
+      const token = session?.accessToken;
+      await promoteToAdmin(userId, token);
+    } catch (error) {
+      console.error('Erreur lors de la promotion en administrateur:', error);
+    } finally {
+      loadUsers();
     }
   };
   return (
@@ -159,6 +177,7 @@ export default function UsersPage() {
           onDisable={handleDisable}
           onEnable={handleEnable}
           onDelete={handleDelete}
+          onPromoteToAdmin={handlePromoteToAdmin}
         />
       )}
     </>

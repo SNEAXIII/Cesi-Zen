@@ -115,8 +115,34 @@ export const registerUser = async (formData: RegisterUserRequest): Promise<true>
       message: "Erreur lors de l'inscription",
       errors: {},
     }));
-    
-    const error = new Error(errorData.message || "Erreur lors de l'inscription") as Error & { validationErrors?: ValidationErrors };
+
+    const error = new Error(errorData.message || "Erreur lors de l'inscription") as Error & {
+      validationErrors?: ValidationErrors;
+    };
+    error.validationErrors = errorData.errors;
+    throw error;
+  }
+  return true;
+};
+export const promoteToAdmin = async (userId: string, token?: string): Promise<true> => {
+  const body = JSON.stringify({
+    user_uuid_to_promote: userId,
+  });
+  const response = await fetch(`http://localhost:8000/admin/users/promote/${userId}`, {
+    method: 'PATCH',
+    headers: getHeaders(token),
+    body,
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json().catch(() => ({
+      message: 'Erreur lors de la promotion en administrateur',
+      errors: {},
+    }));
+
+    const error = new Error(
+      errorData.message || 'Erreur lors de la promotion en administrateur'
+    ) as Error & { validationErrors?: ValidationErrors };
     error.validationErrors = errorData.errors;
     throw error;
   }
