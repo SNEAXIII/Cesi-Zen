@@ -21,6 +21,7 @@ interface LoginFormData {
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/';
   const [formData, setFormData] = useState<LoginFormData>({
     username: '',
     password: '',
@@ -46,30 +47,26 @@ export default function LoginPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.username || !formData.password) {
-      setError('Veuillez remplir tous les champs');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await signIn('credentials', {
+        redirect: false,
         username: formData.username,
         password: formData.password,
-        redirect: false,
+        callbackUrl,
       });
 
       if (result?.error) {
         setError('Identifiants invalides');
-        return;
+      } else {
+        // Rediriger vers l'URL de callback ou le tableau de bord par défaut
+        router.push(callbackUrl);
+        router.refresh();
       }
-      router.push('/');
-      router.refresh();
     } catch (error) {
       console.error('Erreur de connexion:', error);
       setError('Une erreur est survenue lors de la connexion');
@@ -84,7 +81,7 @@ export default function LoginPage() {
         <CardHeader className='space-y-1'>
           <div className='flex justify-center mb-2'>
             <div className='w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center'>
-            <BiUser className="w-12 h-12"/>
+              <BiUser className='w-12 h-12' />
             </div>
           </div>
           <CardTitle className='text-2xl font-bold text-center text-gray-800'>Connexion</CardTitle>

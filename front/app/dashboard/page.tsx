@@ -5,7 +5,8 @@ import Loading from '@/app/dashboard/loading';
 import RenderUserDashboard from '@/app/ui/dashboard/table/render-user-dashboard';
 import PaginationControls from '@/app/ui/dashboard/pagination/pagination-controls';
 import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table/table-header';
-import { getSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import { redirect, useRouter, usePathname } from 'next/navigation';
 
 const BASE_CURRENT_PAGE = 1;
 const BASE_TOTAL_PAGE = 1;
@@ -13,6 +14,14 @@ const BASE_USERS_PER_PAGE = 10;
 const BASE_SELECTED_STATUS = possibleStatus[0].value;
 const BASE_SELECTED_ROLE = possibleRoles[0].value;
 export default function UsersPage() {
+    const pathname = usePathname();
+    const { data: session, status } = useSession({
+      required: true,
+      onUnauthenticated() {
+        redirect(`/login?callbackUrl=${pathname}`);
+      },
+    });
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(BASE_CURRENT_PAGE);
@@ -26,7 +35,6 @@ export default function UsersPage() {
   const loadUsers = async () => {
     setCanReset(false);
     setFetchUsersError('');
-    const session = await getSession();
     const token = session?.accessToken;
     if (!users) {
       setIsLoading(true);
@@ -45,8 +53,8 @@ export default function UsersPage() {
     } catch (error) {
       console.error('Erreur lors du chargement des utilisateurs:', error);
       let errorMessage: string;
-      if ((error as Error).message) {
-        errorMessage = (error as Error).message;
+      if ((error as Error & { status?: number }).status === 401) {
+        errorMessage = 'Non autorisé';
       } else {
         errorMessage = 'Une erreur est survenue lors du chargement des utilisateurs';
       }
@@ -64,6 +72,9 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
     loadUsers();
   }, [currentPage, usersPerPage, selectedStatus, selectedRole]);
 
@@ -141,7 +152,6 @@ export default function UsersPage() {
   };
   const handlePromoteToAdmin = async (userId: string) => {
     try {
-      const session = await getSession();
       const token = session?.accessToken;
       await promoteToAdmin(userId, token);
     } catch (error) {

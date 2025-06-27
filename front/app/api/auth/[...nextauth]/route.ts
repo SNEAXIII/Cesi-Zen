@@ -2,13 +2,11 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import jwt from 'jsonwebtoken';
 
-// Interface pour le payload décodé du JWT
 interface JwtPayload {
   user_id: string;
   sub?: string;
   email?: string;
   role?: string;
-  // Ajoutez d'autres champs que votre JWT pourrait contenir
 }
 
 export const {
@@ -48,25 +46,24 @@ export const {
 
           const data = await res.json();
 
-          if (res.ok && data.access_token) {
-            // Décoder le JWT pour obtenir les informations de l'utilisateur
-            const decoded = jwt.decode(data.access_token) as JwtPayload | null;
-
-            if (!decoded) {
-              console.error('Impossible de décoder le JWT');
-              return null;
-            }
-
-            // Retourner les informations de l'utilisateur à partir du JWT
-            return {
-              id: decoded.user_id,
-              name: decoded.sub,
-              email: decoded.email,
-              role: decoded.role,
-              accessToken: data.access_token,
-            };
+          if (!res.ok || !data.access_token) {
+            return null;
           }
-          return null;
+
+          const decoded = jwt.decode(data.access_token) as JwtPayload | null;
+
+          if (!decoded) {
+            console.error('Impossible de décoder le JWT');
+            return null;
+          }
+
+          return {
+            id: decoded.user_id,
+            name: decoded.sub,
+            email: decoded.email,
+            role: decoded.role,
+            accessToken: data.access_token,
+          };
         } catch (error) {
           console.error('Erreur de connexion:', error);
           return null;
@@ -76,31 +73,43 @@ export const {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Initialisation avec les données de l'utilisateur
+      // User only exists on signIn
       if (user) {
         return {
           ...token,
           id: user.id,
           name: user.name,
           email: user.email,
-          role: (user as any).role,
-          accessToken: (user as any).accessToken,
+          role: user.role,
+          accessToken: user.accessToken,
+          accessTokenExpires: Date.now() + 60 * 60 * 1000, // TODO REMETTRE 1 heure
         };
       }
-      return token;
+      if (Date.now() < (token.accessTokenExpires as number)) {
+        return token;
+      }
+      return {
+        ...token,
+        expired: true,
+      };
     },
     async session({ session, token }) {
-      // Add token data to session
+      if (token.expired) {
+        return {
+          ...session,
+          error: 'TokenExpiredError',
+        };
+      }
       return {
         ...session,
         user: {
           ...session.user,
-          id: token.id as string,
-          name: token.name as string,
-          email: token.email as string,
-          role: (token as any).role as string,
+          id: token.id,
+          name: token.name,
+          email: token.email,
+          role: token.role,
         },
-        accessToken: token.accessToken as string,
+        accessToken: token.accessToken,
       };
     },
   },
@@ -116,6 +125,12 @@ export const {
 
 declare module 'next-auth' {
   interface Session {
+    user: {
+      id: string;
+      name?: string;
+      email?: string;
+      role?: string;
+    };
     accessToken: string;
   }
 }
