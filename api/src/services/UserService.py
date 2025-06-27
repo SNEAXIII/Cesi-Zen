@@ -134,6 +134,14 @@ class UserService:
         return True
 
     @classmethod
+    async def self_delete(cls, session: SessionDep, current_user: User) -> True:
+        if current_user.deleted_at:
+            raise TARGET_USER_IS_ALREADY_DELETED
+        current_user.deleted_at = datetime.now()
+        await session.commit()
+        return True
+
+    @classmethod
     def build_status_filter(cls, sql, status: Optional[str]):
         if status == DELETED_STATUS:
             sql = sql.where(User.deleted_at != None)  # noqa: E711

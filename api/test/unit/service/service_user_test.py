@@ -5,29 +5,28 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi.exceptions import RequestValidationError
 from freezegun import freeze_time
-
+from src.dto.dto_utilisateurs import CreateUser, UserAdminViewSingleUser
+from src.enums.Roles import Roles
 from src.Messages.user_messages import (
+    TARGET_USER_DOESNT_EXISTS,
+    TARGET_USER_IS_ADMIN,
+    TARGET_USER_IS_ALREADY_DELETED,
+    TARGET_USER_IS_ALREADY_DISABLED,
+    TARGET_USER_IS_ALREADY_ENABLED,
+    TARGET_USER_IS_DELETED,
     USER_DOESNT_EXISTS,
     USER_IS_DELETED,
     USER_IS_DISABLED,
-    UserLoginError,
-    TARGET_USER_DOESNT_EXISTS,
-    TARGET_USER_IS_DELETED,
-    TARGET_USER_IS_ADMIN,
-    TARGET_USER_IS_ALREADY_DISABLED,
     UserAdminError,
-    TARGET_USER_IS_ALREADY_ENABLED,
-    TARGET_USER_IS_ALREADY_DELETED,
+    UserLoginError,
 )
 from src.Messages.validators_messages import (
     EMAIL_ALREADY_EXISTS_ERROR,
     LOGIN_ALREADY_EXISTS_ERROR,
 )
-from src.dto.dto_utilisateurs import CreateUser, UserAdminViewSingleUser
-from src.enums.Roles import Roles
 from src.models import User
-from src.services.UserService import UserService
 from src.services.PasswordService import PasswordService
+from src.services.UserService import UserService
 
 ID: uuid.UUID = uuid.UUID("3fa85f64-5717-4562-b3fc-2c963f66afa6")
 PLAIN_PASSWORD = "password"
@@ -348,6 +347,48 @@ async def test_patch_disable_user_error(mocker, fake_user, expected_error):
     # Assert
     assert error.value.detail == str(expected_error)
     mock_get_user.assert_called_once_with(mock_session, ID)
+    mock_session.commit.assert_not_called()
+
+
+@freeze_time(datetime.now())
+@pytest.mark.asyncio
+async def test_self_delete_success(mocker):
+    # Arrange
+    current_time = datetime.now()
+    current_user = User(
+        id=ID, login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD
+    )
+    mock_session = session_mock(mocker)
+
+    # Act
+    result = await UserService.self_delete(mock_session, current_user)
+
+    # Assert
+    assert result is True
+    assert current_user.deleted_at == current_time
+    mock_session.commit.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_self_delete_already_deleted(mocker):
+    # Arrange
+    deleted_at = datetime(2023, 1, 1, 12, 0, 0)
+    current_user = User(
+        id=ID,
+        login=LOGIN,
+        email=EMAIL,
+        hashed_password=HASHED_PASSWORD,
+        deleted_at=deleted_at,
+    )
+    mock_session = session_mock(mocker)
+
+    # Act
+    with pytest.raises(UserAdminError) as error:
+        await UserService.self_delete(mock_session, current_user)
+
+    # Assert
+    assert error.value.detail == str(TARGET_USER_IS_ALREADY_DELETED)
+    assert current_user.deleted_at == deleted_at
     mock_session.commit.assert_not_called()
 
 
