@@ -9,6 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader, CheckCircle } from 'lucide-react';
+import { MdErrorOutline } from 'react-icons/md';
+import styles from '@/app/ui/form.module.css';
+import { BiUser } from 'react-icons/bi';
 
 interface LoginFormData {
   username: string;
@@ -82,20 +85,7 @@ export default function LoginPage() {
         <CardHeader className='space-y-1'>
           <div className='flex justify-center mb-2'>
             <div className='w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center'>
-              <svg
-                className='w-8 h-8 text-primary'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
-                />
-              </svg>
+            <BiUser className="w-12 h-12"/>
             </div>
           </div>
           <CardTitle className='text-2xl font-bold text-center text-gray-800'>Connexion</CardTitle>
@@ -118,19 +108,7 @@ export default function LoginPage() {
             {error && (
               <Alert variant='destructive'>
                 <AlertTitle className='flex items-center'>
-                  <svg
-                    className='w-4 h-4 mr-2'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth='2'
-                      d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                    />
-                  </svg>
+                  <MdErrorOutline className='mr-1' />
                   Erreur
                 </AlertTitle>
                 <AlertDescription className='mt-1'>{error}</AlertDescription>
@@ -140,7 +118,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor='username'
-                  className='block text-sm font-medium text-gray-700 mb-1'
+                  className={styles.labelBase}
                 >
                   Nom d'utilisateur
                 </label>
@@ -151,24 +129,24 @@ export default function LoginPage() {
                   required
                   value={formData.username}
                   onChange={handleChange}
-                  className='w-full transition duration-200 border-gray-300 hover:border-primary/50 focus:ring-2 focus:ring-primary/20'
+                  className={styles.inputBase}
                 />
               </div>
               <div>
                 <div className='flex items-center justify-between mb-1'>
                   <label
                     htmlFor='password'
-                    className='block text-sm font-medium text-gray-700'
+                    className={styles.labelBase}
                   >
                     Mot de passe
                   </label>
                   {/* TODO FAIRE CA */}
-                  <a
+                  {/* <a
                     href='#'
                     className='text-xs text-primary hover:underline'
                   >
                     Mot de passe oublié ?
-                  </a>
+                  </a> */}
                 </div>
                 <Input
                   id='password'
@@ -178,13 +156,13 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className='w-full transition duration-200 border-gray-300 hover:border-primary/50 focus:ring-2 focus:ring-primary/20'
+                  className={styles.inputBase}
                 />
               </div>
             </div>
             <Button
               type='submit'
-              className='w-full py-2 text-base font-medium text-white transition duration-200 bg-primary hover:bg-primary/90 focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 rounded-lg'
+              className={styles.buttonBase}
               disabled={isLoading}
             >
               {isLoading ? (

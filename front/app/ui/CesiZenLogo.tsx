@@ -8,7 +8,7 @@ export default function MainCesiZenLogo() {
     >
       <Image
         src='/logos/main_logo.png'
-        alt='Logo de Cesi Zen'
+        alt='Logo Cesi Zen'
         width={48}
         height={48}
       />

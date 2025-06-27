@@ -4,17 +4,19 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader } from 'lucide-react';
+import styles from '@/app/ui/form.module.css';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { registerUser } from '../services/users';
+import { MdErrorOutline } from 'react-icons/md';
+import { BiUserPlus } from 'react-icons/bi';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
     login: '',
     email: '',
@@ -22,7 +24,7 @@ export default function RegisterPage() {
     confirm_password: '',
   });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
+  const inputErrorClass = 'border-red-500';
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -35,12 +37,10 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    setSuccess('');
     setFieldErrors({});
 
     try {
       await registerUser(formData);
-      setSuccess('Inscription réussie ! Redirection...');
       router.push('/login?registered=true');
     } catch (err) {
       if (err instanceof Error) {
@@ -50,6 +50,7 @@ export default function RegisterPage() {
           // Convertir les erreurs de validation en un format plus simple pour l'affichage
           const errors: Record<string, string> = {};
           Object.entries(error.validationErrors).forEach(([field, error]) => {
+            console.log(field, error);
             errors[field] = error.message;
           });
           setFieldErrors(errors);
@@ -70,19 +71,7 @@ export default function RegisterPage() {
         <CardHeader className='space-y-1'>
           <div className='flex justify-center mb-2'>
             <div className='w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center'>
-              <svg
-                className='w-8 h-8 text-primary'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'
-                />
-              </svg>
+            <BiUserPlus className="w-12 h-12"/>
             </div>
           </div>
           <CardTitle className='text-2xl font-bold text-center text-gray-800'>
@@ -100,19 +89,7 @@ export default function RegisterPage() {
             {error && (
               <Alert variant='destructive'>
                 <AlertTitle className='flex items-center'>
-                  <svg
-                    className='w-4 h-4 mr-2'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth='2'
-                      d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                    />
-                  </svg>
+                  <MdErrorOutline className='mr-1' />
                   Erreur
                 </AlertTitle>
                 <AlertDescription className='mt-1'>{error}</AlertDescription>
@@ -122,7 +99,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor='login'
-                  className='block text-sm font-medium text-gray-700 mb-1'
+                  className={styles.labelBase}
                 >
                   Nom d'utilisateur
                 </label>
@@ -133,9 +110,7 @@ export default function RegisterPage() {
                   required
                   value={formData.login}
                   onChange={handleChange}
-                  className={`w-full transition duration-200 border-gray-300 hover:border-primary/50 focus:ring-2 focus:ring-primary/20 ${
-                    fieldErrors.login ? 'border-red-500' : ''
-                  }`}
+                  className={`${styles.inputBase} ${fieldErrors.login ? inputErrorClass : ''}`}
                 />
                 {fieldErrors.login && (
                   <p className='mt-1 text-sm text-red-600'>{fieldErrors.login}</p>
@@ -144,20 +119,18 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor='email'
-                  className='block text-sm font-medium text-gray-700 mb-1'
+                  className={styles.labelBase}
                 >
                   Adresse email
                 </label>
                 <Input
                   id='email'
                   name='email'
-                  type='email'
+                  type='text'
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full transition duration-200 border-gray-300 hover:border-primary/50 focus:ring-2 focus:ring-primary/20 ${
-                    fieldErrors.email ? 'border-red-500' : ''
-                  }`}
+                  className={`${styles.inputBase} ${fieldErrors.email ? inputErrorClass : ''}`}
                 />
                 {fieldErrors.email && (
                   <p className='mt-1 text-sm text-red-600'>{fieldErrors.email}</p>
@@ -166,7 +139,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor='password'
-                  className='block text-sm font-medium text-gray-700 mb-1'
+                  className={styles.labelBase}
                 >
                   Mot de passe
                 </label>
@@ -177,9 +150,7 @@ export default function RegisterPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full transition duration-200 border-gray-300 hover:border-primary/50 focus:ring-2 focus:ring-primary/20 ${
-                    fieldErrors.password ? 'border-red-500' : ''
-                  }`}
+                  className={`${styles.inputBase} ${fieldErrors.password ? inputErrorClass : ''}`}
                 />
                 {fieldErrors.password && (
                   <p className='mt-1 text-sm text-red-600'>{fieldErrors.password}</p>
@@ -188,7 +159,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor='confirm_password'
-                  className='block text-sm font-medium text-gray-700 mb-1'
+                  className={styles.labelBase}
                 >
                   Confirmer le mot de passe
                 </label>
@@ -199,9 +170,7 @@ export default function RegisterPage() {
                   required
                   value={formData.confirm_password}
                   onChange={handleChange}
-                  className={`w-full transition duration-200 border-gray-300 hover:border-primary/50 focus:ring-2 focus:ring-primary/20 ${
-                    fieldErrors.confirm_password ? 'border-red-500' : ''
-                  }`}
+                  className={`${styles.inputBase} ${fieldErrors.confirm_password ? inputErrorClass : ''}`}
                 />
                 {fieldErrors.confirm_password && (
                   <p className='mt-1 text-sm text-red-600'>{fieldErrors.confirm_password}</p>
@@ -210,7 +179,7 @@ export default function RegisterPage() {
             </div>
             <Button
               type='submit'
-              className='w-full py-2 text-base font-medium text-white transition duration-200 bg-primary hover:bg-primary/90 focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 rounded-lg'
+              className={styles.buttonBase}
               disabled={isLoading}
             >
               {isLoading ? (
