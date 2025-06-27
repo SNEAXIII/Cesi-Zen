@@ -4,19 +4,20 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import MainCesiZenLogo from '@/app/ui/CesiZenLogo';
-import NavLinks from '@/app/ui/left-nav-bar/nav-links';
 import { Button } from '@/components/ui/button';
 import { VscSignIn, VscSignOut } from 'react-icons/vsc';
+import NavLinks, { Role } from '@/app/ui/left-nav-bar/nav-links';
 
 export default function SideNavBar() {
   const { data: session } = useSession();
+  const userRole = session?.user?.role ?? Role.all;
   const router = useRouter();
   const buttonBaseClasses =
     'flex h-[48px] items-center justify-center gap-2 rounded-md p-3 text-sm font-medium transition md:justify-start md:p-2 md:px-3';
   const handleSignOut = async () => {
     try {
       await signOut({ redirect: false });
-      router.push('/login');
+      router.push('/');
       router.refresh();
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
@@ -38,7 +39,7 @@ export default function SideNavBar() {
 
       {/* Navigation Links Section */}
       <div className='flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2'>
-        <NavLinks />
+        <NavLinks userRole={userRole} />
         <div
           className='hidden h-auto w-full grow rounded-md bg-gray-50 md:block'
           aria-hidden='true'

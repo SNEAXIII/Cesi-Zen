@@ -5,25 +5,43 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
-export default function NavLinks() {
+export enum Role {
+  all = 'all',
+  user = 'user',
+  admin = 'admin',
+}
+const roleHierarchy: Record<Role, Role[]> = {
+  [Role.all]: [Role.all],
+  [Role.user]: [Role.all, Role.user],
+  [Role.admin]: [Role.all, Role.user, Role.admin],
+};
+interface NavLinksProps {
+  userRole: Role;
+}
+
+export default function NavLinks({ userRole }: NavLinksProps) {
   const pathname = usePathname();
+
   const links = [
-    { name: 'Accueil', href: '/', icon: IoHomeOutline },
-    {
-      name: 'Mon Profil',
-      href: '/profile',
-      icon: MdPersonOutline,
-    },
+    { name: 'Accueil', href: '/', icon: IoHomeOutline, role: Role.all },
+    { name: 'Mon Profil', href: '/profile', icon: MdPersonOutline, role: Role.user },
     {
       name: 'Administration',
       href: '/dashboard',
       icon: MdOutlineAdminPanelSettings,
+      role: Role.admin,
     },
   ];
+
   return (
     <>
       {links.map((link) => {
         const LinkIcon = link.icon;
+
+        if (!roleHierarchy[userRole]?.includes(link.role)) {
+          return null;
+        }
+
         return (
           <Link
             key={link.name}
