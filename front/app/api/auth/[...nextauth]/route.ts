@@ -107,7 +107,7 @@ export const {
   pages: {
     signIn: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET ?? 'votre-secret-tres-long-et-securise',
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
   },
