@@ -10,14 +10,14 @@ export default function NavLinks() {
   const links = [
     { name: 'Accueil', href: '/', icon: IoHomeOutline },
     {
-      name: 'Administration',
-      href: '/dashboard',
-      icon: MdOutlineAdminPanelSettings,
-    },
-    {
       name: 'Mon Profil',
       href: '/profile',
       icon: MdPersonOutline,
+    },
+    {
+      name: 'Administration',
+      href: '/dashboard',
+      icon: MdOutlineAdminPanelSettings,
     },
   ];
   return (

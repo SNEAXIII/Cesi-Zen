@@ -54,9 +54,7 @@ export const getUsers = async (
     const query_status = status && status !== possibleStatus[0].value ? `&status=${status}` : '';
     const query_role = role && role !== possibleRoles[0].value ? `&role=${role}` : '';
     const url = `http://localhost:8000/admin/users?page=${page}&size=${size}${query_status}${query_role}`;
-
     const headers = getHeaders(token);
-
     const response = await fetch(url, {
       headers,
       mode: 'cors',

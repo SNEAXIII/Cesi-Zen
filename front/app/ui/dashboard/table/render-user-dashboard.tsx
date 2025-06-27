@@ -6,6 +6,7 @@ import TableHeaderUsers, { AllSelectorProps } from '@/app/ui/dashboard/table/tab
 
 interface RenderUserDashboardProps {
   users: User[];
+  fetchUsersError: string;
   onDisable: (userId: string) => void;
   onEnable: (userId: string) => void;
   onDelete: (userId: string) => void;
@@ -14,8 +15,9 @@ interface RenderUserDashboardProps {
 export default function RenderUserDashboard({
   users,
   status,
-  onStatusChange,
   role,
+  fetchUsersError,
+  onStatusChange,
   onRoleChange,
   onDisable,
   onEnable,
@@ -42,9 +44,9 @@ export default function RenderUserDashboard({
           ))}
         </TableBody>
       </Table>
-      {users.length === 0 && (
+      {fetchUsersError && (
         <div className={'mt-5 flex justify-center items-center w-full h-full'}>
-          <p>Aucun utilisateurs trouvés</p>
+          <p>{fetchUsersError}</p>
         </div>
       )}
     </div>

@@ -2,14 +2,17 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import MainCesiZenLogo from '@/app/ui/CesiZenLogo';
 import { IoIosPower } from 'react-icons/io';
 import NavLinks from '@/app/ui/left-nav-bar/nav-links';
+import { Button } from '@/components/ui/button';
 
 export default function SideNavBar() {
+  const { data: session } = useSession();
   const router = useRouter();
-
+  const buttonBaseClasses =
+    'flex h-[48px] w-full items-center justify-center gap-2 rounded-md p-3 text-sm font-medium transition md:justify-start md:p-2 md:px-3';
   const handleSignOut = async () => {
     try {
       await signOut({ redirect: false });
@@ -40,18 +43,30 @@ export default function SideNavBar() {
           className='hidden h-auto w-full grow rounded-md bg-gray-50 md:block'
           aria-hidden='true'
         ></div>
-        {/* Logout Section */}
-        <form>
-          <button
-            type='button'
-            onClick={handleSignOut}
-            className='flex h-[48px] w-full items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium text-gray-700 transition hover:bg-red-50 hover:text-red-600 md:justify-start md:p-2 md:px-3'
-            aria-label='Se déconnecter'
+
+        {/* Session-specific Section */}
+        {session ? (
+          <form>
+            <Button
+              type='button'
+              onClick={handleSignOut}
+              className={`${buttonBaseClasses} bg-gray-50 text-gray-700 hover:bg-red-50 hover:text-red-600`}
+              aria-label='Se déconnecter'
+            >
+              <IoIosPower className='w-6 h-6' />
+              <span className='hidden md:block'>Se déconnecter</span>
+            </Button>
+          </form>
+        ) : (
+          <Link
+            href='/login'
+            className={`${buttonBaseClasses} bg-blue-400 text-white hover:bg-blue-500`}
+            aria-label='Se connecter'
           >
             <IoIosPower className='w-6 h-6' />
-            <span className='hidden md:block'>Se déconnecter</span>
-          </button>
-        </form>
+            <span className='hidden md:block'>Se connecter</span>
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ export default function UsersPage() {
   const [selectedStatus, setSelectedStatus] = useState(BASE_SELECTED_STATUS);
   const [selectedRole, setSelectedRole] = useState(BASE_SELECTED_ROLE);
   const [canReset, setCanReset] = useState(false);
+  const [fetchUsersError, setFetchUsersError] = useState('');
 
   function resetPagination() {
     setUsersPerPage(BASE_USERS_PER_PAGE);
@@ -51,6 +52,7 @@ export default function UsersPage() {
   useEffect(() => {
     const loadUsers = async () => {
       setCanReset(false);
+      setFetchUsersError('');
       const session = await getSession();
       const token = session?.accessToken;
       if (!users) {
@@ -70,6 +72,13 @@ export default function UsersPage() {
         console.log(currentPage, totalPage);
       } catch (error) {
         console.error('Erreur lors du chargement des utilisateurs:', error);
+        let errorMessage: string;
+        if ((error as Error).message ) {
+          errorMessage = (error as Error).message;
+        } else {
+          errorMessage = 'Une erreur est survenue lors du chargement des utilisateurs';
+        }
+        setFetchUsersError(errorMessage);
       } finally {
         setIsLoading(false);
         setCanReset(
@@ -143,8 +152,9 @@ export default function UsersPage() {
         <RenderUserDashboard
           users={users}
           role={selectedRole}
-          onRoleChange={handleRadioSetSelectedRole}
           status={selectedStatus}
+          fetchUsersError={fetchUsersError}
+          onRoleChange={handleRadioSetSelectedRole}
           onStatusChange={handleRadioSetSelectedStatus}
           onDisable={handleDisable}
           onEnable={handleEnable}
