@@ -68,8 +68,7 @@ export default function LoginPage() {
         setError('Identifiants invalides');
         return;
       }
-
-      router.push('/dashboard');
+      router.push('/');
       router.refresh();
     } catch (error) {
       console.error('Erreur de connexion:', error);
