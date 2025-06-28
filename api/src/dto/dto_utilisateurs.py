@@ -25,6 +25,8 @@ class Passwords(Password):
     )
     confirm_password: str = Field(examples=["Securepass1!"])
 
+class ResetPassword(Passwords):
+    old_password: str = Field(examples=["Securepass1!"])
 
 class CreateUser(Passwords):
     login_validator = field_validator("login", mode="after")(login_validator)
@@ -34,8 +36,7 @@ class CreateUser(Passwords):
     email: EmailStr = Field(examples=["user@gmail.com"])
 
 
-# class ResetPassword(Passwords):
-#     current_password: str
+
 
 
 class UserBaseResponse(BaseModel):

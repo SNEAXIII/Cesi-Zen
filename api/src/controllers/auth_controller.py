@@ -47,17 +47,6 @@ async def read_users_me(
     return current_user
 
 
-# @auth_controller.post("/refresh", response_model=RefreshResponse, status_code=200)
-# async def refresh_for_access_token(
-#     current_user: Annotated[User, Depends(get_current_user)],
-# ) -> RefreshResponse:
-#     access_token = create_access_token(current_user)
-#     return RefreshResponse(
-#         token_type="bearer",
-#         access_token=access_token,
-#     )
-
-
 @auth_controller.post("/register", response_model=SuccessfullyCreatedUtilisateur)
 async def create_user(create_user_dto: CreateUser, session: SessionDep):
     user = await UserService.create_user_register(session, create_user_dto)
