@@ -37,11 +37,9 @@ export default function NavLinks({ userRole }: NavLinksProps) {
     <>
       {links.map((link) => {
         const LinkIcon = link.icon;
-
         if (!roleHierarchy[userRole]?.includes(link.role)) {
           return null;
         }
-
         return (
           <Link
             key={link.name}

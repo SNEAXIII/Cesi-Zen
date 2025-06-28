@@ -6,11 +6,11 @@ import { signOut, useSession } from 'next-auth/react';
 import MainCesiZenLogo from '@/app/ui/CesiZenLogo';
 import { Button } from '@/components/ui/button';
 import { VscSignIn, VscSignOut } from 'react-icons/vsc';
-import NavLinks, { Role } from '@/app/ui/left-nav-bar/nav-links';
+import NavLinks, { Role } from './nav-links';
 
 export default function SideNavBar() {
   const { data: session } = useSession();
-  const userRole = session?.user?.role ?? Role.all;
+  const userRole: Role = session?.user.role as Role || Role.user;
   const router = useRouter();
   const buttonBaseClasses =
     'flex h-[48px] items-center justify-center gap-2 rounded-md p-3 text-sm font-medium transition md:justify-start md:p-2 md:px-3';
