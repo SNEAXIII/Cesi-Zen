@@ -10,7 +10,7 @@ import NavLinks, { Role } from './nav-links';
 
 export default function SideNavBar() {
   const { data: session } = useSession();
-  const userRole: Role = session?.user.role as Role || Role.user;
+  const userRole: Role = session?.user.role as Role || Role.all;
   const router = useRouter();
   const buttonBaseClasses =
     'flex h-[48px] items-center justify-center gap-2 rounded-md p-3 text-sm font-medium transition md:justify-start md:p-2 md:px-3';

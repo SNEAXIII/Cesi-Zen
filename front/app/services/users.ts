@@ -25,6 +25,10 @@ export interface RegisterUserRequest {
   confirm_password: string;
 }
 
+export interface DeleteAccountRequest {
+  password: string;
+}
+
 interface ApiError {
   detail?: string;
   message?: string;
@@ -53,7 +57,7 @@ export const getUsers = async (
   try {
     const query_status = status && status !== possibleStatus[0].value ? `&status=${status}` : '';
     const query_role = role && role !== possibleRoles[0].value ? `&role=${role}` : '';
-    const url = `http://localhost:8000/admin/users?page=${page}&size=${size}${query_status}${query_role}`;
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/users?page=${page}&size=${size}${query_status}${query_role}`;
     const headers = getHeaders(token);
     const response = await fetch(url, {
       headers,
@@ -104,7 +108,7 @@ export const registerUser = async (formData: RegisterUserRequest): Promise<true>
     password: formData.password,
     confirm_password: formData.confirm_password,
   });
-  const response = await fetch('http://localhost:8000/auth/register', {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/register`, {
     method: 'POST',
     headers: getHeaders(),
     body,
@@ -124,11 +128,31 @@ export const registerUser = async (formData: RegisterUserRequest): Promise<true>
   }
   return true;
 };
+export const deleteAccount = async (password: string, token?: string): Promise<true> => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/user/delete/self`, {
+      method: 'DELETE',
+      headers: getHeaders(token),
+      body: JSON.stringify({ password }),
+    });
+
+    if (!response.ok) {
+      const errorData: ApiError = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Erreur lors de la suppression du compte');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    throw error;
+  }
+};
+
 export const promoteToAdmin = async (userId: string, token?: string): Promise<true> => {
   const body = JSON.stringify({
     user_uuid_to_promote: userId,
   });
-  const response = await fetch(`http://localhost:8000/admin/users/promote/${userId}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/users/promote/${userId}`, {
     method: 'PATCH',
     headers: getHeaders(token),
     body,
