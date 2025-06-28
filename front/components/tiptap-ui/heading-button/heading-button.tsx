@@ -61,6 +61,15 @@ export const headingShortcutKeys: Partial<Record<Level, string>> = {
   6: "Ctrl-Alt-6",
 }
 
+export const headingLabels: Record<Level, string> = {
+  1: "Titre 1",
+  2: "Titre 2",
+  3: "Titre 3",
+  4: "Titre 4",
+  5: "Titre 5",
+  6: "Titre 6",
+}
+
 export function canToggleHeading(editor: Editor | null, level: Level): boolean {
   if (!editor) return false
 
@@ -133,7 +142,7 @@ export function useHeadingState(
 
   const Icon = headingIcons[level]
   const shortcutKey = headingShortcutKeys[level]
-  const formattedName = getFormattedHeadingName(level)
+  const formattedName = headingLabels[level] || getFormattedHeadingName(level)
 
   return {
     headingInSchema,
@@ -208,9 +217,9 @@ export const HeadingButton = React.forwardRef<
         data-disabled={isDisabled}
         role="button"
         tabIndex={-1}
-        aria-label={formattedName}
+        aria-label={headingLabels[level] || formattedName}
         aria-pressed={isActive}
-        tooltip={formattedName}
+        tooltip={headingLabels[level] || formattedName}
         shortcutKeys={shortcutKey}
         onClick={handleClick}
         {...buttonProps}

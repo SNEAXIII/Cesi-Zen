@@ -114,7 +114,7 @@ export function useBlockquoteState(
   }, [editor, isDisabled])
 
   const shortcutKey = "Ctrl-Shift-b"
-  const label = "Blockquote"
+  const label = "Citation"
 
   return {
     nodeInSchema,

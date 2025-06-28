@@ -56,27 +56,27 @@ export interface ColorHighlightPopoverProps extends Omit<ButtonProps, "type"> {
 
 export const DEFAULT_HIGHLIGHT_COLORS: ColorHighlightPopoverColor[] = [
   {
-    label: "Green",
+    label: "Vert",
     value: "var(--tt-color-highlight-green)",
     border: "var(--tt-color-highlight-green-contrast)",
   },
   {
-    label: "Blue",
+    label: "Bleu",
     value: "var(--tt-color-highlight-blue)",
     border: "var(--tt-color-highlight-blue-contrast)",
   },
   {
-    label: "Red",
+    label: "Rouge",
     value: "var(--tt-color-highlight-red)",
     border: "var(--tt-color-highlight-red-contrast)",
   },
   {
-    label: "Purple",
+    label: "Violet",
     value: "var(--tt-color-highlight-purple)",
     border: "var(--tt-color-highlight-purple-contrast)",
   },
   {
-    label: "Yellow",
+    label: "Jaune",
     value: "var(--tt-color-highlight-yellow)",
     border: "var(--tt-color-highlight-yellow-contrast)",
   },
@@ -93,8 +93,8 @@ export const ColorHighlightPopoverButton = React.forwardRef<
     data-appearance="default"
     role="button"
     tabIndex={-1}
-    aria-label="Highlight text"
-    tooltip="Highlight"
+    aria-label="Surligner le texte"
+    tooltip="Surligner"
     ref={ref}
     {...props}
   >
@@ -119,7 +119,7 @@ export function ColorHighlightPopoverContent({
   }, [editor, onClose])
 
   const menuItems = React.useMemo(
-    () => [...colors, { label: "Remove highlight", value: "none" }],
+    () => [...colors, { label: "Supprimer le surlignage", value: "none" }],
     [colors]
   )
 
@@ -162,7 +162,7 @@ export function ColorHighlightPopoverContent({
       <div className="tiptap-button-group">
         <Button
           onClick={removeHighlight}
-          aria-label="Remove highlight"
+          aria-label="Supprimer le surlignage"
           tabIndex={selectedIndex === colors.length ? 0 : -1}
           type="button"
           role="menuitem"

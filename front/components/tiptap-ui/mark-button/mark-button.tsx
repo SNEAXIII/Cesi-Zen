@@ -70,6 +70,16 @@ export const markShortcutKeys: Partial<Record<Mark, string>> = {
   subscript: "Ctrl-,",
 }
 
+export const markLabels: Record<Mark, string> = {
+  bold: "Gras",
+  italic: "Italique",
+  underline: "Souligné",
+  strike: "Barré",
+  code: "Bloc de code",
+  superscript: "Exposant",
+  subscript: "Indice",
+}
+
 export function canToggleMark(editor: Editor | null, type: Mark): boolean {
   if (!editor) return false
 
@@ -141,7 +151,7 @@ export function useMarkState(
 
   const Icon = markIcons[type]
   const shortcutKey = markShortcutKeys[type]
-  const formattedName = getFormattedMarkName(type)
+  const formattedName = markLabels[type] || getFormattedMarkName(type)
 
   return {
     markInSchema,
@@ -213,9 +223,9 @@ export const MarkButton = React.forwardRef<HTMLButtonElement, MarkButtonProps>(
         data-disabled={isDisabled}
         role="button"
         tabIndex={-1}
-        aria-label={type}
+        aria-label={markLabels[type] || formattedName}
         aria-pressed={isActive}
-        tooltip={formattedName}
+        tooltip={markLabels[type] || formattedName}
         shortcutKeys={shortcutKey}
         onClick={handleClick}
         {...buttonProps}

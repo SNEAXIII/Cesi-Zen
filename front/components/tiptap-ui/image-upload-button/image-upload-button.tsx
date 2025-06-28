@@ -107,9 +107,9 @@ export const ImageUploadButton = React.forwardRef<
         data-active-state={isActive ? "on" : "off"}
         role="button"
         tabIndex={-1}
-        aria-label="Add image"
+        aria-label="Ajouter une image"
         aria-pressed={isActive}
-        tooltip="Add image"
+        tooltip="Ajouter une image"
         onClick={handleClick}
         {...buttonProps}
       >
