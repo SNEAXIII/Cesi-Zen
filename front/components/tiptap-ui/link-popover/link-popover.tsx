@@ -53,7 +53,7 @@ export const useLinkHandler = (props: LinkHandlerProps) => {
     const { href } = editor.getAttributes("link")
 
     if (editor.isActive("link") && url === null) {
-      setUrl(href || "")
+      setUrl(href ?? "")
       onLinkActive?.()
     }
   }, [editor, onLinkActive, url])
@@ -63,7 +63,7 @@ export const useLinkHandler = (props: LinkHandlerProps) => {
 
     const updateLinkState = () => {
       const { href } = editor.getAttributes("link")
-      setUrl(href || "")
+      setUrl(href ?? "")
 
       if (editor.isActive("link") && url !== null) {
         onLinkActive?.()
@@ -99,11 +99,11 @@ export const useLinkHandler = (props: LinkHandlerProps) => {
   }, [editor])
 
   return {
-    url: url || "",
+    url: url ?? "",
     setUrl,
     setLink,
     removeLink,
-    isActive: editor?.isActive("link") || false,
+    isActive: editor?.isActive("link") ?? false,
   }
 }
 
@@ -114,10 +114,8 @@ export const LinkButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         type="button"
         className={className}
         data-style="ghost"
-        role="button"
-        tabIndex={-1}
-        aria-label="Link"
-        tooltip="Link"
+        aria-label="Lien"
+        tooltip="Lien"
         ref={ref}
         {...props}
       >
@@ -166,7 +164,7 @@ const LinkMain: React.FC<LinkMainProps> = ({
     <>
       <input
         type="url"
-        placeholder="Paste a link..."
+        placeholder="Coller un lien..."
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -180,7 +178,7 @@ const LinkMain: React.FC<LinkMainProps> = ({
         <Button
           type="button"
           onClick={setLink}
-          title="Apply link"
+          title="Appliquer le lien"
           disabled={!url && !isActive}
           data-style="ghost"
         >
@@ -194,7 +192,7 @@ const LinkMain: React.FC<LinkMainProps> = ({
         <Button
           type="button"
           onClick={handleOpenLink}
-          title="Open in new window"
+          title="Ouvrir dans une nouvelle fenêtre"
           disabled={!url && !isActive}
           data-style="ghost"
         >
@@ -204,7 +202,7 @@ const LinkMain: React.FC<LinkMainProps> = ({
         <Button
           type="button"
           onClick={removeLink}
-          title="Remove link"
+          title="Supprimer le lien"
           disabled={!url && !isActive}
           data-style="ghost"
         >
@@ -242,7 +240,7 @@ export function LinkPopover({
   onOpenChange,
   autoOpenOnLinkActive = true,
   ...props
-}: LinkPopoverProps) {
+}: Readonly<LinkPopoverProps>) {
   const editor = useTiptapEditor(providedEditor)
 
   const linkInSchema = isMarkInSchema("link", editor)
@@ -300,7 +298,7 @@ export function LinkPopover({
     return true
   }, [linkInSchema, hideWhenUnavailable, editor, canSetLink])
 
-  if (!show || !editor || !editor.isEditable) {
+  if (!show || !editor?.isEditable) {
     return null
   }
 

@@ -1,21 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 body {
   --tt-toolbar-height: 44px;
   --tt-theme-text: var(--tt-gray-light-900);
-
-  .dark & {
-    --tt-theme-text: var(--tt-gray-dark-900);
-  }
-}
-
-body {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   color: var(--tt-theme-text);
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
   padding: 0;
+
+  .dark & {
+    --tt-theme-text: var(--tt-gray-dark-900);
+  }
 }
 
 html,
@@ -27,32 +24,62 @@ body,
 }
 
 body {
-  overflow: hidden;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100vh;
 }
 
 .tiptap.ProseMirror {
-  font-family: "DM Sans", sans-serif;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100%;
+  padding-bottom: 80px;
 }
 
-.content-wrapper {
-  height: calc(100% - var(--tt-toolbar-height));
-  overflow-y: auto;
-
+/* Styles pour la scrollbar de la toolbar mobile */
+[data-mobile="true"] {
   &::-webkit-scrollbar {
-    display: block;
-    width: 0.5rem;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
+    height: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: var(--tt-scrollbar-color);
+    background-color: #c1c1c1;
     border-radius: 4px;
   }
+}
 
-  /* Firefox scrollbar */
+.content-wrapper {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  position: relative;
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  @media (min-width: 768px) {
+    height: calc(100% - var(--tt-toolbar-height));
+    padding-bottom: 0;
+
+    &::-webkit-scrollbar {
+      display: block;
+      width: 0.5rem;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--tt-scrollbar-color);
+      border-radius: 4px;
+    }
+  }
+
   scrollbar-width: thin;
   scrollbar-color: var(--tt-scrollbar-color) transparent;
 }

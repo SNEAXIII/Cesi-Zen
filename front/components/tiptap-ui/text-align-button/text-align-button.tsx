@@ -53,10 +53,10 @@ export const textAlignShortcutKeys: Partial<Record<TextAlign, string>> = {
 }
 
 export const textAlignLabels: Record<TextAlign, string> = {
-  left: "Align left",
-  center: "Align center",
-  right: "Align right",
-  justify: "Align justify",
+  left: "Aligner à gauche",
+  center: "Centrer",
+  right: "Aligner à droite",
+  justify: "Justifier",
 }
 
 export function hasSetTextAlign(

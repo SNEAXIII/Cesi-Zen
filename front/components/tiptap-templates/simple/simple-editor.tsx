@@ -63,7 +63,6 @@ import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 
 // --- Hooks ---
 import { useMobile } from "@/hooks/use-mobile"
-import { useWindowSize } from "@/hooks/use-window-size"
 import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
 
 // --- Lib ---
@@ -173,7 +172,6 @@ const MobileToolbarContent = ({
 
 export function SimpleEditor() {
   const isMobile = useMobile()
-  const windowSize = useWindowSize()
   const [mobileView, setMobileView] = React.useState<
     "main" | "highlighter" | "link"
   >("main")
@@ -226,17 +224,31 @@ export function SimpleEditor() {
     }
   }, [isMobile, mobileView])
 
+  const mobileToolbarStyle: React.CSSProperties = {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    backgroundColor: 'white',
+    padding: '8px',
+    boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)',
+    borderTop: '1px solid #e2e8f0',
+    display: 'flex',
+    flexWrap: 'nowrap',
+    gap: '8px',
+    overflowX: 'auto',
+    WebkitOverflowScrolling: 'touch',
+    msOverflowStyle: 'auto',
+    scrollbarWidth: 'thin',
+  };
+
   return (
     <EditorContext.Provider value={{ editor }}>
       <Toolbar
         ref={toolbarRef}
-        style={
-          isMobile
-            ? {
-                bottom: `calc(100% - ${windowSize.height - bodyRect.y}px)`,
-              }
-            : {}
-        }
+        style={isMobile ? mobileToolbarStyle : {}}
+        data-mobile={isMobile}
       >
         {mobileView === "main" ? (
           <MainToolbarContent
