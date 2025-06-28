@@ -202,91 +202,83 @@ export default function ProfilePage() {
                 <AlertDialogTrigger asChild>
                   <Button
                     variant='outline'
-                    className='text-blue-700 border-blue-300 hover:bg-blue-50'
+                    className='text-blue-700 border-blue-300 hover:bg-blue-50 whitespace-normal text-left min-h-[2.5rem] h-auto py-2'
                   >
-                    <LuKeyRound className='-ml-1 mr-2 h-4 w-4' />
-                    Changer mon mot de passe
+                    <LuKeyRound className='flex-shrink-0 -ml-1 mr-2 h-4 w-4' />
+                    <span className='break-words'>Changer mon mot de passe</span>
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className='max-w-md'>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Changer le mot de passe</AlertDialogTitle>
-                    <div className='space-y-4 py-4'>
+                    <AlertDialogTitle className='text-lg font-semibold text-gray-900'>
+                      Changer le mot de passe
+                    </AlertDialogTitle>
+                    <div className='space-y-4 py-2'>
                       <div className='space-y-2'>
-                        <Label htmlFor='current-password'>Mot de passe actuel</Label>
+                        <Label htmlFor='current-password' className='text-sm font-medium text-gray-700'>
+                          Mot de passe actuel
+                        </Label>
                         <Input
                           id='current-password'
                           type='password'
                           value={oldPassword}
                           onChange={(e) => setOldPassword(e.target.value)}
                           placeholder='Entrez votre mot de passe actuel'
-                          className={fieldErrors.old_password ? 'border-red-500' : ''}
+                          className={`${fieldErrors.old_password ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                           disabled={isResetting}
                         />
                         {fieldErrors.old_password && (
-                          <p className='text-sm text-red-600 mt-1'>{fieldErrors.old_password}</p>
+                          <p className='mt-1 text-sm text-red-600'>{fieldErrors.old_password}</p>
                         )}
                       </div>
 
                       <div className='space-y-2'>
-                        <Label htmlFor='new-password'>Nouveau mot de passe</Label>
+                        <Label htmlFor='new-password' className='text-sm font-medium text-gray-700'>
+                          Nouveau mot de passe
+                        </Label>
                         <Input
                           id='new-password'
                           type='password'
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder='Entrez votre nouveau mot de passe'
-                          className={fieldErrors.password ? 'border-red-500' : ''}
+                          className={`${fieldErrors.password ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                           disabled={isResetting}
                         />
                         {fieldErrors.password && (
-                          <p className='text-sm text-red-600 mt-1'>{fieldErrors.password}</p>
+                          <p className='mt-1 text-sm text-red-600'>{fieldErrors.password}</p>
                         )}
                       </div>
 
                       <div className='space-y-2'>
-                        <Label htmlFor='confirm-password'>Confirmez le nouveau mot de passe</Label>
+                        <Label htmlFor='confirm-password' className='text-sm font-medium text-gray-700'>
+                          Confirmez le mot de passe
+                        </Label>
                         <Input
                           id='confirm-password'
                           type='password'
                           value={confirmNewPassword}
                           onChange={(e) => setConfirmNewPassword(e.target.value)}
                           placeholder='Confirmez votre nouveau mot de passe'
-                          className={fieldErrors.confirm_password ? 'border-red-500' : ''}
+                          className={`${fieldErrors.confirm_password ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                           disabled={isResetting}
                         />
                         {fieldErrors.confirm_password && (
-                          <p className='text-sm text-red-600 mt-1'>
-                            {fieldErrors.confirm_password}
-                          </p>
+                          <p className='mt-1 text-sm text-red-600'>{fieldErrors.confirm_password}</p>
                         )}
                       </div>
 
                       {error && !Object.keys(fieldErrors).length && (
-                        <div className='p-3 text-sm text-red-700 bg-red-100 rounded-md'>
+                        <div className='p-3 text-sm text-red-700 bg-red-100 border border-red-200 rounded-md'>
                           {error}
                         </div>
                       )}
                     </div>
                   </AlertDialogHeader>
-                  <AlertDialogFooter className='sm:flex sm:flex-row-reverse sm:justify-between'>
-                    <AlertDialogAction
-                      onClickCapture={handleResetPassword}
-                      disabled={isResetting || !oldPassword || !password || !confirmNewPassword}
-                      className='w-full sm:w-auto bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-                    >
-                      {isResetting ? (
-                        <>
-                          <Loader className='w-5 h-5 mr-2 animate-spin' />
-                          Enregistrement...
-                        </>
-                      ) : (
-                        'Enregistrer les modifications'
-                      )}
-                    </AlertDialogAction>
+                  <AlertDialogFooter className='flex flex-col-reverse sm:flex-row sm:justify-between gap-2'>
                     <AlertDialogCancel
                       disabled={isResetting}
-                      className='w-full sm:w-auto mt-2 sm:mt-0'
+                      className='w-full mt-0 sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
                       onClick={() => {
                         setError('');
                         setSuccess('');
@@ -297,6 +289,20 @@ export default function ProfilePage() {
                     >
                       Annuler
                     </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClickCapture={handleResetPassword}
+                      disabled={isResetting || !oldPassword || !password || !confirmNewPassword}
+                      className='w-full sm:w-auto bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-white'
+                    >
+                      {isResetting ? (
+                        <>
+                          <Loader className='w-4 h-4 mr-2 animate-spin' />
+                          Enregistrement...
+                        </>
+                      ) : (
+                        'Enregistrer les modifications'
+                      )}
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -329,35 +335,39 @@ export default function ProfilePage() {
                 <AlertDialogTrigger asChild>
                   <Button
                     variant='destructive'
-                    className='inline-flex items-center'
+                    className='whitespace-normal text-left min-h-[2.5rem] h-auto py-2'
                   >
-                    <LuTrash2 className='-ml-1 mr-2 h-4 w-4' />
-                    Supprimer mon compte
+                    <LuTrash2 className='flex-shrink-0 -ml-1 mr-2 h-4 w-4' />
+                    <span className='break-words'>Supprimer mon compte</span>
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className='max-w-md'>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Cette action ne peut pas être annulée. Cela supprimera définitivement votre
-                      compte.
+                    <AlertDialogTitle className='text-lg font-semibold text-gray-900'>
+                      Êtes-vous absolument sûr ?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className='text-gray-600'>
+                      Cette action est irréversible. Toutes vos données seront définitivement supprimées.
                       <div className='mt-4 space-y-2'>
-                        <Label htmlFor='password'>Confirmez votre mot de passe</Label>
+                        <Label htmlFor='password' className='text-sm font-medium text-gray-700'>
+                          Confirmez votre mot de passe
+                        </Label>
                         <Input
                           id='password'
                           type='password'
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder='Votre mot de passe'
-                          className={error ? 'border-red-500' : ''}
+                          className={`${error ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-red-500 focus:border-transparent`}
                         />
-                        {error && <p className='text-sm text-red-600'>{error}</p>}
+                        {error && <p className='mt-1 text-sm text-red-600'>{error}</p>}
                       </div>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
+                  <AlertDialogFooter className='flex flex-col-reverse sm:flex-row sm:justify-between gap-2'>
                     <AlertDialogCancel
                       disabled={isDeleting}
+                      className='w-full mt-0 sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
                       onClick={(e) => {
                         if (!isDeleting) {
                           setPassword('');
@@ -372,11 +382,11 @@ export default function ProfilePage() {
                     <AlertDialogAction
                       onClickCapture={handleDeleteAccount}
                       disabled={isDeleting || !password}
-                      className='bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                      className='w-full sm:w-auto bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white'
                     >
                       {isDeleting ? (
                         <>
-                          <Loader className='w-5 h-5 mr-2 animate-spin' />
+                          <Loader className='w-4 h-4 mr-2 animate-spin' />
                           Suppression...
                         </>
                       ) : (
