@@ -35,14 +35,11 @@ PASSWORD_NEED_DIGIT = "contenir un chiffre"
 PASSWORD_NEED_UPPER = "contenir une majuscule"
 PASSWORD_NEED_LOWER = "contenir une minuscule"
 PASSWORD_NEED_SPECIAL = 'contenir un caractère spécial parmis "%s"'
-
 TARGET_USER_DISABLED_SUCCESSFULLY = "Le compte cible a bien été désactivé"
 TARGET_USER_ENABLED_SUCCESSFULLY = "Le compte cible a bien été activé"
 TARGET_USER_DELETED_SUCCESSFULLY = "Le compte cible a bien été supprimé"
 TARGET_USER_PROMOTED_SUCCESSFULLY = "Le compte cible a bien été promu"
 TARGET_USER_PASSWORD_RESET_SUCCESSFULLY = "Le mot de passe à bien été réinitialisé"
-PASSWORD_IS_THE_SAME = UserAdminError("Le mot de passe saisi doit être différent du précédent")
-PASSWORD_IS_WRONG = UserAdminError("Le mot de passe saisi est invalide")
 TARGET_USER_DOESNT_EXISTS = UserAdminError("Le compte cible n'existe pas")
 TARGET_USER_IS_ADMIN = UserAdminError("Le compte cible est un administrateur")
 TARGET_USER_IS_ALREADY_ENABLED = UserAdminError("Le compte cible est déjà activé")

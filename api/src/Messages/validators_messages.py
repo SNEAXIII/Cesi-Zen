@@ -7,7 +7,12 @@ def generate_validation_error_template_for_field(
         "msg": message,
     }
 
-
+PASSWORD_WRONG_IN_DATABASE = generate_validation_error_template_for_field(
+    "old_password", "Le mot de passe saisi est invalide"
+)
+OLD_PASSWORD_EQUAL_ERROR = generate_validation_error_template_for_field(
+    "password", "Le mot de passe saisi doit être différent du précédent"
+)
 PASSWORD_UNEQUAL_ERROR = generate_validation_error_template_for_field(
     "confirm_password", "Les mots de passe ne sont pas identiques"
 )

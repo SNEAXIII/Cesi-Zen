@@ -10,7 +10,7 @@ from src.validators.user_validator import (
     login_validator,
     correct_email_validator,
     password_validator,
-    verify_password_match,
+    verify_password_match, verify_old_password_not_match,
 )
 
 
@@ -26,6 +26,7 @@ class Passwords(Password):
     confirm_password: str = Field(examples=["Securepass1!"])
 
 class ResetPassword(Passwords):
+    verify_old_password_validator = field_validator("old_password", mode="after")(verify_old_password_not_match)
     old_password: str = Field(examples=["Securepass1!"])
 
 class CreateUser(Passwords):

@@ -15,7 +15,10 @@ from src.Messages.user_messages import (
     PASSWORD_NEED_UPPER,
     PASSWORD_WRONG_SIZE,
 )
-from src.Messages.validators_messages import PASSWORD_UNEQUAL_ERROR
+from src.Messages.validators_messages import (
+    PASSWORD_UNEQUAL_ERROR,
+    OLD_PASSWORD_EQUAL_ERROR,
+)
 
 SPECIAL_CHARS = "$@#%!^&*-_+="
 MIN_LOGIN_LENGHT = 4
@@ -71,4 +74,11 @@ def verify_password_match(value: str, info: ValidationInfo) -> str:
         info.data["password"], value
     ):
         raise RequestValidationError(errors=[PASSWORD_UNEQUAL_ERROR])
+    return value
+
+
+def verify_old_password_not_match(value: str, info: ValidationInfo) -> str:
+    print(info)
+    if "password" in info.data and hmac.compare_digest(info.data["password"], value):
+        raise RequestValidationError(errors=[OLD_PASSWORD_EQUAL_ERROR])
     return value

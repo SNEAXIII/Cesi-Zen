@@ -3,7 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import { redirect, usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { deleteAccount } from '@/app/services/users';
+import { deleteAccount, resetUserPassword } from '@/app/services/users';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -19,14 +19,20 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader } from 'lucide-react';
+import { LuKeyRound, LuTrash2 } from 'react-icons/lu';
 
 export default function ProfilePage() {
   const pathname = usePathname();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [password, setPassword] = useState('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const { data: session, status } = useSession({
     required: true,
@@ -43,9 +49,10 @@ export default function ProfilePage() {
 
     setIsDeleting(true);
     setError('');
+    setSuccess('');
 
     try {
-      await deleteAccount(password,session?.accessToken);
+      await deleteAccount(password, session?.accessToken);
       await signOut({ redirect: false });
       router.push('/');
       router.refresh();
@@ -57,6 +64,69 @@ export default function ProfilePage() {
           : 'Une erreur est survenue lors de la suppression du compte'
       );
       setIsDeleting(false);
+    }
+  };
+
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const handleResetPassword = async () => {
+    // Réinitialiser les erreurs
+    setError('');
+    setFieldErrors({});
+
+    // Validation côté client
+    if (!oldPassword || !password || !confirmNewPassword) {
+      setError('Veuillez remplir tous les champs');
+      return;
+    }
+
+    setIsResetting(true);
+    setSuccess('');
+
+    try {
+      await resetUserPassword(
+        {
+          old_password: oldPassword,
+          password: password,
+          confirm_password: confirmNewPassword,
+        },
+        session?.accessToken
+      );
+
+      setSuccess('Votre mot de passe a été mis à jour avec succès');
+      setPassword('');
+      setOldPassword('');
+      setConfirmNewPassword('');
+      setIsResetDialogOpen(false);
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+
+      if (error instanceof Error) {
+        const apiError = error as {
+          message?: string;
+          validationErrors?: Record<string, { message: string }>;
+        };
+
+        if (apiError.validationErrors) {
+          const errors: Record<string, string> = {};
+          Object.entries(apiError.validationErrors).forEach(([field, error]) => {
+            errors[field] = error?.message || 'Erreur de validation';
+          });
+
+          setFieldErrors(errors);
+          setError(apiError.message || 'Des erreurs de validation sont présentes');
+          return;
+        }
+      }
+
+      // Gestion des autres types d'erreurs
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Une erreur est survenue lors de la réinitialisation du mot de passe'
+      );
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -105,6 +175,135 @@ export default function ProfilePage() {
             </button>
           </div>
 
+          {/* Section de sécurité */}
+          <div className='border-t border-gray-200 pt-6'>
+            <h2 className='text-lg font-semibold mb-4 text-gray-700'>Sécurité</h2>
+            <div className='bg-blue-50 p-4 rounded-md border border-blue-200 mb-6'>
+              <h3 className='font-medium text-blue-800'>Réinitialiser le mot de passe</h3>
+              <p className='text-sm text-blue-600 mt-1 mb-3'>
+                Vous pouvez réinitialiser votre mot de passe en suivant les instructions ci-dessous.
+              </p>
+
+              <AlertDialog
+                open={isResetDialogOpen}
+                onOpenChange={(open) => {
+                  if (!isResetting) {
+                    setIsResetDialogOpen(open);
+                    if (!open) {
+                      setError('');
+                      setSuccess('');
+                      setPassword('');
+                      setOldPassword('');
+                      setConfirmNewPassword('');
+                    }
+                  }
+                }}
+              >
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant='outline'
+                    className='text-blue-700 border-blue-300 hover:bg-blue-50'
+                  >
+                    <LuKeyRound className='-ml-1 mr-2 h-4 w-4' />
+                    Changer mon mot de passe
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className='max-w-md'>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Changer le mot de passe</AlertDialogTitle>
+                    <div className='space-y-4 py-4'>
+                      <div className='space-y-2'>
+                        <Label htmlFor='current-password'>Mot de passe actuel</Label>
+                        <Input
+                          id='current-password'
+                          type='password'
+                          value={oldPassword}
+                          onChange={(e) => setOldPassword(e.target.value)}
+                          placeholder='Entrez votre mot de passe actuel'
+                          className={fieldErrors.old_password ? 'border-red-500' : ''}
+                          disabled={isResetting}
+                        />
+                        {fieldErrors.old_password && (
+                          <p className='text-sm text-red-600 mt-1'>{fieldErrors.old_password}</p>
+                        )}
+                      </div>
+
+                      <div className='space-y-2'>
+                        <Label htmlFor='new-password'>Nouveau mot de passe</Label>
+                        <Input
+                          id='new-password'
+                          type='password'
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder='Entrez votre nouveau mot de passe'
+                          className={fieldErrors.password ? 'border-red-500' : ''}
+                          disabled={isResetting}
+                        />
+                        {fieldErrors.password && (
+                          <p className='text-sm text-red-600 mt-1'>{fieldErrors.password}</p>
+                        )}
+                      </div>
+
+                      <div className='space-y-2'>
+                        <Label htmlFor='confirm-password'>Confirmez le nouveau mot de passe</Label>
+                        <Input
+                          id='confirm-password'
+                          type='password'
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          placeholder='Confirmez votre nouveau mot de passe'
+                          className={fieldErrors.confirm_password ? 'border-red-500' : ''}
+                          disabled={isResetting}
+                        />
+                        {fieldErrors.confirm_password && (
+                          <p className='text-sm text-red-600 mt-1'>
+                            {fieldErrors.confirm_password}
+                          </p>
+                        )}
+                      </div>
+
+                      {error && !Object.keys(fieldErrors).length && (
+                        <div className='p-3 text-sm text-red-700 bg-red-100 rounded-md'>
+                          {error}
+                        </div>
+                      )}
+                    </div>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className='sm:flex sm:flex-row-reverse sm:justify-between'>
+                    <AlertDialogAction
+                      onClickCapture={handleResetPassword}
+                      disabled={isResetting || !oldPassword || !password || !confirmNewPassword}
+                      className='w-full sm:w-auto bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+                    >
+                      {isResetting ? (
+                        <>
+                          <Loader className='w-5 h-5 mr-2 animate-spin' />
+                          Enregistrement...
+                        </>
+                      ) : (
+                        'Enregistrer les modifications'
+                      )}
+                    </AlertDialogAction>
+                    <AlertDialogCancel
+                      disabled={isResetting}
+                      className='w-full sm:w-auto mt-2 sm:mt-0'
+                      onClick={() => {
+                        setError('');
+                        setSuccess('');
+                        setPassword('');
+                        setOldPassword('');
+                        setConfirmNewPassword('');
+                      }}
+                    >
+                      Annuler
+                    </AlertDialogCancel>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              {success && <p className='mt-2 text-sm text-green-600'>{success}</p>}
+            </div>
+          </div>
+
           {/* Section de suppression de compte */}
           <div className='border-t border-red-200 pt-6'>
             <h2 className='text-lg font-semibold mb-4 text-red-700'>Zone de danger</h2>
@@ -115,13 +314,14 @@ export default function ProfilePage() {
               </p>
 
               <AlertDialog
-                open={isDialogOpen}
+                open={isDeleteDialogOpen}
                 onOpenChange={(open) => {
                   if (!isDeleting) {
-                    setIsDialogOpen(open);
+                    setIsDeleteDialogOpen(open);
                     if (!open) {
                       setPassword('');
                       setError('');
+                      setSuccess('');
                     }
                   }
                 }}
@@ -131,20 +331,7 @@ export default function ProfilePage() {
                     variant='destructive'
                     className='inline-flex items-center'
                   >
-                    <svg
-                      className='-ml-1 mr-2 h-4 w-4'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-                      />
-                    </svg>
+                    <LuTrash2 className='-ml-1 mr-2 h-4 w-4' />
                     Supprimer mon compte
                   </Button>
                 </AlertDialogTrigger>

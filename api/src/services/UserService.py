@@ -15,12 +15,10 @@ from src.Messages.user_messages import (
     TARGET_USER_IS_ALREADY_ADMIN,
     TARGET_USER_IS_DELETED,
     TARGET_USER_IS_ALREADY_DELETED,
-    PASSWORD_IS_THE_SAME,
-    PASSWORD_IS_WRONG,
 )
 from src.Messages.validators_messages import (
     EMAIL_ALREADY_EXISTS_ERROR,
-    LOGIN_ALREADY_EXISTS_ERROR,
+    LOGIN_ALREADY_EXISTS_ERROR, PASSWORD_WRONG_IN_DATABASE,
 )
 from src.enums.Roles import Roles
 from src.models import User
@@ -145,7 +143,7 @@ class UserService:
             password, current_user.hashed_password
         )
         if is_correct_password is not True:
-            raise PASSWORD_IS_WRONG
+            raise RequestValidationError(errors=[PASSWORD_WRONG_IN_DATABASE])
         if current_user.deleted_at:
             raise TARGET_USER_IS_ALREADY_DELETED
         current_user.deleted_at = datetime.now()
@@ -160,11 +158,9 @@ class UserService:
             reset_password_dto.old_password, current_user.hashed_password
         )
         if is_correct_password is not True:
-            raise PASSWORD_IS_WRONG
+            raise RequestValidationError(errors=[PASSWORD_WRONG_IN_DATABASE])
         if current_user.deleted_at:
             raise TARGET_USER_IS_ALREADY_DELETED
-        if reset_password_dto.old_password == reset_password_dto.password:
-            raise PASSWORD_IS_THE_SAME
         new_hashed_password = await PasswordService.get_string_hash(
             reset_password_dto.password
         )
