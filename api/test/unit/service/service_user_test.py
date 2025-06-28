@@ -5,6 +5,8 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi.exceptions import RequestValidationError
 from freezegun import freeze_time
+
+from src.Messages.jwt_messages import JwtCredentialsError, CREDENTIALS_EXCEPTION
 from src.dto.dto_utilisateurs import CreateUser, UserAdminViewSingleUser
 from src.enums.Roles import Roles
 from src.Messages.user_messages import (
@@ -33,7 +35,6 @@ PLAIN_PASSWORD = "password"
 HASHED_PASSWORD = "hash"
 LOGIN = "User"
 EMAIL = "user@gmail.com"
-TOKEN = "token"
 PASSWORD = "ComplexPassword1!"
 ROLE = None
 STATUS = None
@@ -77,6 +78,14 @@ def get_user_by_login_mock(mocker, return_value: bool | User):
     return mocker.patch.object(
         UserService,
         "get_user_by_login",
+        return_value=return_value,
+    )
+
+
+def verify_password_mock(mocker, return_value: bool):
+    return mocker.patch.object(
+        PasswordService,
+        "verify_password",
         return_value=return_value,
     )
 
@@ -359,16 +368,40 @@ async def test_self_delete_success(mocker):
         id=ID, login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD
     )
     mock_session = session_mock(mocker)
+    mock_verify = verify_password_mock(mocker,True)
 
     # Act
-    result = await UserService.self_delete(mock_session, current_user)
+    result = await UserService.self_delete(mock_session, current_user,PASSWORD)
 
     # Assert
     assert result is True
     assert current_user.deleted_at == current_time
+    mock_verify.assert_called_once_with(PASSWORD,HASHED_PASSWORD)
     mock_session.commit.assert_called_once()
 
+@pytest.mark.asyncio
+async def test_self_delete_wrong_credentials(mocker):
+    # Arrange
+    deleted_at = datetime(2023, 1, 1, 12, 0, 0)
+    current_user = User(
+        id=ID,
+        login=LOGIN,
+        email=EMAIL,
+        hashed_password=HASHED_PASSWORD,
+        deleted_at=deleted_at,
+    )
+    mock_session = session_mock(mocker)
+    mock_verify = verify_password_mock(mocker,False)
 
+    # Act
+    with pytest.raises(JwtCredentialsError) as error:
+        await UserService.self_delete(mock_session, current_user, PASSWORD)
+
+    # Assert
+    assert error.value.detail == str(CREDENTIALS_EXCEPTION)
+    assert current_user.deleted_at == deleted_at
+    mock_verify.assert_called_once_with(PASSWORD,HASHED_PASSWORD)
+    mock_session.commit.assert_not_called()
 @pytest.mark.asyncio
 async def test_self_delete_already_deleted(mocker):
     # Arrange
@@ -381,14 +414,16 @@ async def test_self_delete_already_deleted(mocker):
         deleted_at=deleted_at,
     )
     mock_session = session_mock(mocker)
+    mock_verify = verify_password_mock(mocker,True)
 
     # Act
     with pytest.raises(UserAdminError) as error:
-        await UserService.self_delete(mock_session, current_user)
+        await UserService.self_delete(mock_session, current_user, PASSWORD)
 
     # Assert
     assert error.value.detail == str(TARGET_USER_IS_ALREADY_DELETED)
     assert current_user.deleted_at == deleted_at
+    mock_verify.assert_called_once_with(PASSWORD,HASHED_PASSWORD)
     mock_session.commit.assert_not_called()
 
 

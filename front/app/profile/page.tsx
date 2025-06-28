@@ -56,6 +56,29 @@ export default function ProfilePage() {
               Se déconnecter
             </button>
           </div>
+          
+          {/* Section de suppression de compte */}
+          <div className='border-t border-red-200 pt-6'>
+            <h2 className='text-lg font-semibold mb-4 text-red-700'>Zone de danger</h2>
+            <div className='bg-red-50 p-4 rounded-md border border-red-200'>
+              <h3 className='font-medium text-red-800'>Supprimer mon compte</h3>
+              <p className='text-sm text-red-600 mt-1 mb-3'>
+                Cette action est irréversible. Toutes vos données seront définitivement supprimées.
+              </p>
+              <button
+                onClick={() => {
+                  // TODO: Implémenter la logique de suppression de compte
+                  console.log('Suppression du compte demandée');
+                }}
+                className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200'
+              >
+                <svg className='-ml-1 mr-2 h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
+                </svg>
+                Supprimer mon compte
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

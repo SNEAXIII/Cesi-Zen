@@ -2,7 +2,7 @@ import uuid
 from typing import Optional
 
 
-from pydantic import BaseModel, model_validator, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from datetime import datetime
 
 from src.enums.Roles import Roles
@@ -14,11 +14,15 @@ from src.validators.user_validator import (
 )
 
 
-class Passwords(BaseModel):
+class Password(BaseModel):
     password_validator = field_validator("password", mode="after")(password_validator)
     password: str = Field(examples=["Securepass1!"])
 
-    confirm_password_validator = field_validator("confirm_password", mode="after")(verify_password_match)
+
+class Passwords(Password):
+    confirm_password_validator = field_validator("confirm_password", mode="after")(
+        verify_password_match
+    )
     confirm_password: str = Field(examples=["Securepass1!"])
 
 

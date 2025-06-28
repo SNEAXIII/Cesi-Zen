@@ -4,6 +4,7 @@ from typing import Optional
 
 from sqlmodel import select
 
+from src.Messages.jwt_messages import CREDENTIALS_EXCEPTION
 from src.Messages.user_messages import (
     USER_DOESNT_EXISTS,
     USER_IS_DELETED,
@@ -26,6 +27,7 @@ from src.dto.dto_utilisateurs import (
     CreateUser,
     UserAdminViewAllUsers,
     UserAdminViewSingleUser,
+    Password,
 )
 from src.services.PasswordService import PasswordService
 from src.utils.db import SessionDep
@@ -135,7 +137,14 @@ class UserService:
         return True
 
     @classmethod
-    async def self_delete(cls, session: SessionDep, current_user: User) -> True:
+    async def self_delete(
+        cls, session: SessionDep, current_user: User, password: str
+    ) -> True:
+        is_correct_password = await PasswordService.verify_password(
+            password, current_user.hashed_password
+        )
+        if is_correct_password is not True:
+            raise CREDENTIALS_EXCEPTION
         if current_user.deleted_at:
             raise TARGET_USER_IS_ALREADY_DELETED
         current_user.deleted_at = datetime.now()
