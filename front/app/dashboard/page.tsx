@@ -6,7 +6,7 @@ import RenderUserDashboard from '@/app/ui/dashboard/table/render-user-dashboard'
 import PaginationControls from '@/app/ui/dashboard/pagination/pagination-controls';
 import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table/table-header';
 import { useSession } from 'next-auth/react';
-import { redirect, useRouter, usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 
 const BASE_CURRENT_PAGE = 1;
 const BASE_TOTAL_PAGE = 1;
@@ -14,14 +14,20 @@ const BASE_USERS_PER_PAGE = 10;
 const BASE_SELECTED_STATUS = possibleStatus[0].value;
 const BASE_SELECTED_ROLE = possibleRoles[0].value;
 export default function UsersPage() {
-    const pathname = usePathname();
-    const { data: session, status } = useSession({
-      required: true,
-      onUnauthenticated() {
-        redirect(`/login?callbackUrl=${pathname}`);
-      },
-    });
-  const router = useRouter();
+  const pathname = usePathname();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect(`/login?callbackUrl=${pathname}`);
+    },
+  });
+  const [sessionReady, setSessionReady] = useState(false);
+
+useEffect(() => {
+  if (status === "authenticated") {
+    setSessionReady(true);
+  }
+}, [status]);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(BASE_CURRENT_PAGE);
@@ -72,11 +78,10 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
+    if (sessionReady) {
+      loadUsers();
     }
-    loadUsers();
-  }, [currentPage, usersPerPage, selectedStatus, selectedRole]);
+  }, [sessionReady, currentPage, usersPerPage, selectedStatus, selectedRole]);
 
   function resetPagination() {
     setUsersPerPage(BASE_USERS_PER_PAGE);
@@ -118,48 +123,6 @@ export default function UsersPage() {
     setCurrentPage((page) => totalPage);
   };
 
-  const handleDisable = async (userId: string) => {
-    try {
-      console.log("Désactivation de l'utilisateur:", userId);
-      // TODO: Implémenter l'action de désactivation
-    } catch (error) {
-      console.error('Erreur lors de la désactivation:', error);
-    } finally {
-      loadUsers();
-    }
-  };
-
-  const handleEnable = async (userId: string) => {
-    try {
-      console.log("Activation de l'utilisateur:", userId);
-      // TODO: Implémenter l'action d'activation
-    } catch (error) {
-      console.error("Erreur lors de l'activation:", error);
-    } finally {
-      loadUsers();
-    }
-  };
-
-  const handleDelete = async (userId: string) => {
-    try {
-      console.log("Suppression de l'utilisateur:", userId);
-      // TODO: Implémenter l'action de suppression
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      loadUsers();
-    }
-  };
-  const handlePromoteToAdmin = async (userId: string) => {
-    try {
-      const token = session?.accessToken;
-      await promoteToAdmin(userId, token);
-    } catch (error) {
-      console.error('Erreur lors de la promotion en administrateur:', error);
-    } finally {
-      loadUsers();
-    }
-  };
   return (
     <>
       <PaginationControls
@@ -184,10 +147,7 @@ export default function UsersPage() {
           fetchUsersError={fetchUsersError}
           onRoleChange={handleRadioSetSelectedRole}
           onStatusChange={handleRadioSetSelectedStatus}
-          onDisable={handleDisable}
-          onEnable={handleEnable}
-          onDelete={handleDelete}
-          onPromoteToAdmin={handlePromoteToAdmin}
+          loadUsers={loadUsers}
         />
       )}
     </>

@@ -7,10 +7,7 @@ import TableHeaderUsers, { AllSelectorProps } from '@/app/ui/dashboard/table/tab
 interface RenderUserDashboardProps {
   users: User[];
   fetchUsersError: string;
-  onDisable: (userId: string) => void;
-  onEnable: (userId: string) => void;
-  onDelete: (userId: string) => void;
-  onPromoteToAdmin: (userId: string) => void;
+  loadUsers: () => void;
 }
 
 export default function RenderUserDashboard({
@@ -20,10 +17,7 @@ export default function RenderUserDashboard({
   fetchUsersError,
   onStatusChange,
   onRoleChange,
-  onDisable,
-  onEnable,
-  onDelete,
-  onPromoteToAdmin,
+  loadUsers,
 }: RenderUserDashboardProps & AllSelectorProps) {
   return (
     <div className='container mx-auto py-6'>
@@ -39,10 +33,7 @@ export default function RenderUserDashboard({
             <UserRow
               key={user.id}
               user={user}
-              onDisable={onDisable}
-              onEnable={onEnable}
-              onDelete={onDelete}
-              onPromoteToAdmin={onPromoteToAdmin}
+              loadUsers={loadUsers}
             />
           ))}
         </TableBody>

@@ -7,8 +7,8 @@ export interface User {
   id: string;
   created_at: string;
   last_login_date: string | null;
-  disabled_at: boolean;
-  deleted_at: boolean;
+  disabled_at: string | null;
+  deleted_at: string | null;
 }
 
 export interface FetchUsersResponse {
@@ -73,7 +73,7 @@ export const getUsers = async (
         console.error('Failed to parse error response:', e);
       }
 
-      const errorMessage = errorData.detail || errorData.message || 'Erreur inconnue';
+      const errorMessage = errorData.detail ?? errorData.message ?? 'Erreur inconnue';
       const error = new Error(`Erreur ${response.status}: ${errorMessage}`);
       (error as any).status = response.status;
       throw error;
@@ -120,7 +120,7 @@ export const registerUser = async (formData: RegisterUserRequest): Promise<true>
       errors: {},
     }));
 
-    const error = new Error(errorData.message || "Erreur lors de l'inscription") as Error & {
+    const error = new Error(errorData.message ?? "Erreur lors de l'inscription") as Error & {
       validationErrors?: ValidationErrors;
     };
     error.validationErrors = errorData.errors;
@@ -138,7 +138,7 @@ export const deleteAccount = async (password: string, token?: string): Promise<t
 
     if (!response.ok) {
       const errorData: ApiError = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Erreur lors de la suppression du compte');
+      throw new Error(errorData.detail ?? 'Erreur lors de la suppression du compte');
     }
 
     return true;
@@ -146,6 +146,48 @@ export const deleteAccount = async (password: string, token?: string): Promise<t
     console.error('Error deleting account:', error);
     throw error;
   }
+};
+
+export const disableUser = async (userId: string, token?: string): Promise<true> => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/users/disable/${userId}`, {
+    method: 'PATCH',
+    headers: getHeaders(token),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiError = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail ?? 'Erreur lors de la désactivation de l\'utilisateur');
+  }
+
+  return true;
+};
+
+export const enableUser = async (userId: string, token?: string): Promise<true> => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/users/enable/${userId}`, {
+    method: 'PATCH',
+    headers: getHeaders(token),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiError = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail ?? 'Erreur lors de la réactivation de l\'utilisateur');
+  }
+
+  return true;
+};
+
+export const deleteUser = async (userId: string, token?: string): Promise<true> => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/users/delete/${userId}`, {
+    method: 'DELETE',
+    headers: getHeaders(token),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiError = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail ?? 'Erreur lors de la suppression de l\'utilisateur');
+  }
+
+  return true;
 };
 
 export const promoteToAdmin = async (userId: string, token?: string): Promise<true> => {
@@ -165,7 +207,7 @@ export const promoteToAdmin = async (userId: string, token?: string): Promise<tr
     }));
 
     const error = new Error(
-      errorData.message || 'Erreur lors de la promotion en administrateur'
+      errorData.message ?? 'Erreur lors de la promotion en administrateur'
     ) as Error & { validationErrors?: ValidationErrors };
     error.validationErrors = errorData.errors;
     throw error;

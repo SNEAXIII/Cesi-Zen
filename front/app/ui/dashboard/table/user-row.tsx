@@ -12,13 +12,10 @@ import { UserActions } from '@/app/ui/dashboard/actions/user-actions';
 
 interface UserRowProps {
   user: User;
-  onDisable: (userId: string) => void;
-  onEnable: (userId: string) => void;
-  onDelete: (userId: string) => void;
-  onPromoteToAdmin: (userId: string) => void;
+  loadUsers: () => void;
 }
 
-export function UserRow({ user, onDisable, onEnable, onDelete ,onPromoteToAdmin}: UserRowProps) {
+export function UserRow({ user, loadUsers }: UserRowProps) {
   return (
     <TableRow>
       <RowUserLogin login={user.login} />
@@ -26,6 +23,7 @@ export function UserRow({ user, onDisable, onEnable, onDelete ,onPromoteToAdmin}
       <RowUserRole role={user.role} />
       <RowUserCreatedAt created_at={user.created_at} />
       <RowUserLastLoginDate lastLoginDate={user.last_login_date} />
+      {/* TODO FIX THIS ESLINT ERROR */}
       <UserStatusBadge
         deleted_at={user.deleted_at}
         disabled_at={user.disabled_at}
@@ -35,10 +33,7 @@ export function UserRow({ user, onDisable, onEnable, onDelete ,onPromoteToAdmin}
         isAdmin={user.role === 'admin'}
         isDisabled={user.disabled_at}
         isDeleted={user.deleted_at}
-        onDisable={onDisable}
-        onEnable={onEnable}
-        onDelete={onDelete}
-        onPromoteToAdmin={onPromoteToAdmin}
+        loadUsers={loadUsers}
       />
     </TableRow>
   );
