@@ -15,11 +15,11 @@ class GetArticleResponseMin(BaseModel):
     id_category: int
     creator: str
     category: str
+    created_at: datetime
 
 
 class GetArticleResponseFull(GetArticleResponseMin):
     content: str
-    created_at: datetime
 
 
 class GetAllArticleResponse(BaseModel):

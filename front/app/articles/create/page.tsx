@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 type Category = {
   id: number;
@@ -70,7 +71,9 @@ export default function CreateArticlePage() {
         const data = await getAllCategories();
         setCategories(data);
       } catch (error) {
-        console.error('Erreur lors du chargement des catégories:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+        toast.error(`Erreur lors du chargement des catégories: ${errorMessage}`);
+        console.error('Erreur chargement catégories:', error);
       } finally {
         setIsLoading(false);
       }
@@ -96,18 +99,19 @@ export default function CreateArticlePage() {
 
   const handleApiError = (error: unknown) => {
     console.error('Erreur:', error);
-    alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur est survenue'}`);
+    const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue';
+    toast.error(`Erreur: ${errorMessage}`);
   };
 
   const handleSuccess = () => {
-    alert('Votre article a été créé avec succès !');
+    toast.success('Votre article a été créé avec succès !');
     router.push('/articles');
     router.refresh();
   };
 
   const onSubmit = async (data: ArticleFormValues) => {
     if (!session) {
-      alert('Vous devez être connecté pour créer un article');
+      toast.error('Vous devez être connecté pour créer un article');
       return;
     }
     console.log(data);

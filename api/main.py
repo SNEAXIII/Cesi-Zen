@@ -1,19 +1,19 @@
-from time import perf_counter
-from fastapi.openapi.utils import get_openapi
 import logging
+from time import perf_counter
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from icecream import ic
+from src.controllers.admin_controller import admin_controller
+from src.controllers.articles_controller import article_controller
+from src.controllers.auth_controller import auth_controller
+from src.controllers.category_controller import category_controller
+from src.controllers.user_controller import user_controller
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from src.controllers.admin_controller import admin_controller
-from src.controllers.articles_controller import article_controller
-from src.controllers.auth_controller import auth_controller
-from src.controllers.user_controller import user_controller
-from src.controllers.category_controller import category_controller
-from fastapi.middleware.cors import CORSMiddleware
 # ic.disable()
 
 

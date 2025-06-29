@@ -2,7 +2,7 @@ import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 import SideNavBar from '@/app/ui/left-nav-bar/sidenav';
 import { Providers } from './providers';
-
+import { Toaster } from '@/components/ui/sonner';
 interface RootLayoutProps {
   readonly children: React.ReactNode;
 }
@@ -16,6 +16,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <div className='w-full flex-none md:w-64'>
               <SideNavBar />
             </div>
+            <Toaster />
             <div className='grow p-6 md:overflow-y-auto md:p-12'>{children}</div>
           </div>
         </Providers>

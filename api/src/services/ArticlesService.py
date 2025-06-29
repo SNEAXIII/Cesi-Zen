@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 
-from fastapi.exceptions import HTTPException, RequestValidationError
+from fastapi.exceptions import HTTPException
 from sqlmodel import select
 from src.dto.dto_articles import (
     CreateArticle,
@@ -41,9 +41,9 @@ class ArticleService:
 
     @classmethod
     async def delete_article(cls, session: SessionDep, article_id: int) -> bool:
-        article = await cls.get_article(session, article_id)
+        article = await session.get(Article, article_id)
         if not article:
-            raise RequestValidationError(errors=[{"msg": "Article introuvable"}])
+            raise HTTPException(status_code=404, detail="Article introuvable")
         await session.delete(article)
         await session.commit()
         return True

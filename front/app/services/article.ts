@@ -42,12 +42,15 @@ export async function createArticle(articleData: ArticleData, token?: string) {
 
 export async function deleteArticle(articleId: string | number, token?: string) {
   const headers = getHeaders(token);
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/articles/${articleId}`, {
-    method: 'DELETE',
-    headers,
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/articles/${articleId}`,
+    {
+      method: 'DELETE',
+      headers,
+    }
+  );
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.message ?? "Erreur lors de la suppression de l'article");
   }
   return true;

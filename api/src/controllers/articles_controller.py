@@ -3,7 +3,6 @@ from typing import Optional
 from fastapi import APIRouter
 
 from src.dto.dto_articles import GetAllArticleResponse, GetArticleResponseFull
-from src.models import Article
 from src.services.ArticlesService import ArticleService
 from src.utils.db import SessionDep
 
@@ -16,7 +15,7 @@ article_controller = APIRouter(
 @article_controller.get("/", response_model=GetAllArticleResponse)
 async def get_articles(
     session: SessionDep,
-    category_id: Optional[int]=None,
+    category_id: Optional[int] = None,
 ):
     result = await ArticleService.get_all(session, category_id)
     return result

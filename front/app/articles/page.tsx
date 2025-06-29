@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { getAllArticles, Article } from '@/app/services/article';
+import { getAllArticles, Article, deleteArticle } from '@/app/services/article';
 import { getAllCategories } from '@/app/services/category';
 import {
   Select,
@@ -12,6 +12,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { formatDateInFrenchLong } from '@/app/lib/utils';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { DeleteArticleDialog } from '@/components/articles/delete-article-dialog';
 
 type Category = {
   id: number;
@@ -26,14 +30,34 @@ export default function ArticlesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const fetchArticles = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAllArticles(
+        selectedCategory && selectedCategory !== 'all' ? Number(selectedCategory) : undefined
+      );
+      setArticles(data.articles);
+      setError(null);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+      setError(errorMessage);
+      toast.error(`Erreur lors du chargement des articles: ${errorMessage}`);
+      console.error('Erreur chargement articles:', err);
+      setArticles([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await getAllCategories();
         setCategories(data);
       } catch (err) {
-        console.error('Erreur lors du chargement des catégories:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+        toast.error(`Erreur lors du chargement des catégories: ${errorMessage}`);
+        console.error('Erreur chargement catégories:', err);
       } finally {
         setIsLoadingCategories(false);
       }
@@ -43,24 +67,6 @@ export default function ArticlesPage() {
   }, []);
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getAllArticles(
-          selectedCategory && selectedCategory !== 'all' ? Number(selectedCategory) : undefined
-        );
-        setArticles(data.articles);
-        setError(null);
-
-      } catch (err) {
-        setError(err.message);
-        console.error(err);
-        setArticles([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchArticles();
   }, [selectedCategory]);
 
@@ -70,6 +76,21 @@ export default function ArticlesPage() {
 
   const resetFilter = () => {
     setSelectedCategory('all');
+  };
+
+  const handleDeleteArticle = async (id: number) => {
+    try {
+      setIsDeleting(id);
+      await deleteArticle(id, session?.accessToken);
+      fetchArticles();
+      toast.success('Article supprimé avec succès');
+    } catch (err) {
+      console.error("Erreur lors de la suppression de l'article:", err);
+      toast.error(`Erreur lors de la suppression de l'article: ${(err as Error).message}`);
+      throw err; // Important pour que le dialogue puisse gérer l'erreur
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   if (isLoading) {
@@ -188,40 +209,53 @@ export default function ArticlesPage() {
               )}
             </div>
           ) : (
-            <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
+            <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
               {articles.map((article) => (
-                <article
+                <Card
                   key={article.id}
-                  className='flex flex-col h-full overflow-hidden rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow duration-200'
+                  className='h-full flex flex-col hover:shadow-lg transition-shadow'
                 >
-                  <div className='p-6 flex-1 flex flex-col'>
-                    <div className='flex-1'>
-                      <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-3'>
-                        {article.category}
+                  <CardHeader className='pb-3 relative'>
+                    <div className='flex justify-between items-start'>
+                      <div className='flex items-center gap-2'>
+                        <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                          {article.category}
+                        </span>
+                        {session?.user.role === 'admin' && (
+                          <DeleteArticleDialog
+                            isDeleting={isDeleting === article.id}
+                            onConfirm={() => handleDeleteArticle(article.id)}
+                          />
+                        )}
+                      </div>
+                      <span className='text-xs text-muted-foreground'>
+                        {formatDateInFrenchLong(article.created_at)}
                       </span>
+                    </div>
+                    <CardTitle className='mt-8'>
                       <Link
                         href={`/articles/${article.id}`}
-                        className='block'
+                        className='hover:underline hover:text-primary'
                       >
-                        <h3 className='text-xl font-semibold text-gray-900'>{article.title}</h3>
+                        {article.title}
                       </Link>
-                    </div>
-                    <div className='mt-6 flex items-center'>
-                      <div className='flex-shrink-0'>
-                        <span className='sr-only'>{article.creator}</span>
-                        <div className='h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center'>
-                          <span className='text-blue-800 font-medium'>
-                            {article.creator.charAt(0)}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className='flex-1 flex flex-col justify-end'>
+                    <div className='flex items-center mt-2 pt-2 border-t'>
+                      <div className='flex-shrink-0 mr-3'>
+                        <div className='h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center'>
+                          <span className='text-sm text-blue-800 font-medium'>
+                            {article.creator.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       </div>
-                      <div className='ml-3'>
-                        <p className='text-sm font-medium text-gray-900'>{article.creator}</p>
-                        <div className='text-sm text-gray-500'>Catégorie: {article.category}</div>
+                      <div>
+                        <p className='text-sm font-medium'>{article.creator}</p>
                       </div>
                     </div>
-                  </div>
-                </article>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
