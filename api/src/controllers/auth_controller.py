@@ -32,11 +32,9 @@ async def login_for_access_token(
         session, form_data.username, form_data.password
     )
     access_token = JWTService.create_access_token(authenticated_user)
-    # refresh_token = create_refresh_token(authenticated_user)
     return LoginResponse(
         token_type="bearer",
         access_token=access_token,
-        # refresh_token=refresh_token,
     )
 
 

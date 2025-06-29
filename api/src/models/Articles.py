@@ -6,16 +6,15 @@ if TYPE_CHECKING:
     from src.models.Category import Category
 
 
-class Content(SQLModel, table=True):
-    __tablename__ = "content"
+class Article(SQLModel, table=True):
+    __tablename__ = "article"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
-    description: str
-    filepath: str
+    content:str
     id_user: str = Field(foreign_key="user.id")
     id_category: int = Field(foreign_key="category.id")
 
     # Relations
-    user: "User" = Relationship(back_populates="contents")
-    category: "Category" = Relationship(back_populates="contents")
+    user: "User" = Relationship(back_populates="articles")
+    category: "Category" = Relationship(back_populates="articles")
