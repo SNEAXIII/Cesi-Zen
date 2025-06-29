@@ -24,7 +24,6 @@ class ArticleService:
         )
         if not category:
             raise HTTPException(status_code=400, detail="La catégorie n'existe pas")
-        print(category,current_user)
         new_article = Article(
             title=create_article.title,
             content=create_article.content,

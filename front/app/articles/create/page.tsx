@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { createArticle }    from '@/app/services/content';
+import { createArticle as createArticleService } from '@/app/services/article'; // Renommage ici
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,22 +29,29 @@ const formSchema = z.object({
   content: z.string().min(10, {
     message: 'Le contenu doit contenir au moins 10 caractères.',
   }),
-  category: z.number({
-    required_error: 'Veuillez sélectionner une catégorie',
-    invalid_type_error: 'L\'ID de la catégorie doit être un nombre',
-  }).min(1, {
-    message: 'Veuillez sélectionner une catégorie valide',
-  }),
+  category: z.preprocess(
+    (val) => (val === "" ? undefined : Number(val)),
+    z.number({
+      required_error: 'Veuillez sélectionner une catégorie',
+      invalid_type_error: 'L\'ID de la catégorie doit être un nombre',
+    }).positive({
+      message: 'Veuillez sélectionner une catégorie valide',
+    })
+  ),
 });
 
-type ArticleFormValues = z.infer<typeof formSchema>;
+type ArticleFormValues = {
+  title: string;
+  content: string;
+  category: number;
+};
 
 export default function CreateArticlePage() {
   const { data: session } = useSession();
   const router = useRouter();
 
   const form = useForm<ArticleFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       title: '',
       content: '',
@@ -69,22 +76,6 @@ export default function CreateArticlePage() {
     router.refresh();
   };
 
-  const createArticle = async (data: ArticleFormValues) => {
-    try {
-      setIsSubmitting(true);
-      await createArticle({
-        title: data.title,
-        content: data.content,
-        category: data.category,
-      });
-      handleSuccess();
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const onSubmit = async (data: ArticleFormValues) => {
     if (!session) {
       alert('Vous devez être connecté pour créer un article');
@@ -93,7 +84,8 @@ export default function CreateArticlePage() {
     console.log(data);
 
     try {
-      await createArticle(data);
+      setIsSubmitting(true);
+      await createArticleService(data, session?.accessToken); // Appel de la fonction importée
       handleSuccess();
     } catch (error) {
       handleApiError(error);
@@ -153,12 +145,11 @@ export default function CreateArticlePage() {
                 )}
               />
 
-              <CategorySelector
+              <CategorySelector<ArticleFormValues>
                 control={form.control}
-                name='categories'
-                label='Catégories'
+                name="category"
+                label="Catégorie"
               />
-
               <div className='flex justify-end gap-4 pt-4'>
                 <Button
                   type='button'

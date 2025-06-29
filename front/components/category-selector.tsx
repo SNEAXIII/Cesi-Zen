@@ -1,22 +1,34 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Control } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 
-interface CategorySelectorProps {
-  control: Control<any>;
+interface Category {
+  id: number;
   name: string;
-  label: string;
 }
 
-const CATEGORIES = [
-  { value: 'technologie', label: 'Technologie' },
-  { value: 'sante', label: 'Santé' },
-  { value: 'education', label: 'Éducation' },
-  { value: 'actualite', label: 'Actualité' },
-  { value: 'divertissement', label: 'Divertissement' },
+interface CategorySelectorProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
+  label: string;
+  categories?: Category[];
+}
+
+// Default categories in case none are provided
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: 1, name: 'Technologie' },
+  { id: 2, name: 'Santé' },
+  { id: 3, name: 'Éducation' },
+  { id: 4, name: 'Actualité' },
+  { id: 5, name: 'Divertissement' },
 ];
 
-export function CategorySelector({ control, name, label }: CategorySelectorProps) {
+export function CategorySelector<T extends FieldValues>({ 
+  control, 
+  name, 
+  label,
+  categories = DEFAULT_CATEGORIES 
+}: CategorySelectorProps<T>) {
   return (
     <FormField
       control={control}
@@ -25,8 +37,10 @@ export function CategorySelector({ control, name, label }: CategorySelectorProps
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <Select
-            onValueChange={field.onChange}
-            value={field.value}
+            onValueChange={(value) => {
+              field.onChange(value === "" ? undefined : Number(value));
+            }}
+            value={field.value?.toString() ?? ""}
           >
             <FormControl>
               <SelectTrigger>
@@ -34,9 +48,9 @@ export function CategorySelector({ control, name, label }: CategorySelectorProps
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {CATEGORIES.map(({ value, label }) => (
-                <SelectItem key={value} value={value}>
-                  {label}
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.name}
                 </SelectItem>
               ))}
             </SelectContent>

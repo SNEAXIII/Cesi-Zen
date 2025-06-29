@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/react';
+import { getHeaders } from '@/app/lib/utils';
 
 interface ArticleData {
   title: string;
@@ -6,20 +6,17 @@ interface ArticleData {
   category: string | number;
 }
 
-export async function createArticle(articleData: ArticleData) {
-  const session = await getSession();
-  const formData = new FormData();
-
-  Object.entries(articleData).forEach(([key, value]) => {
-    formData.append(key, value.toString());
+export async function createArticle(articleData: ArticleData, token?: string) {
+  const body = JSON.stringify({
+    title: articleData.title,
+    content: articleData.content,
+    category: Number(articleData.category),
   });
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/articles`, {
+  const headers = getHeaders(token);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/admin/articles`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-    },
-    body: formData,
+    headers,
+    body,
   });
 
   if (!response.ok) {
@@ -30,14 +27,11 @@ export async function createArticle(articleData: ArticleData) {
   return await response.json();
 }
 
-export async function deleteArticle(articleId: string | number) {
-  const session = await getSession();
+export async function deleteArticle(articleId: string | number, token?: string) {
+  const headers = getHeaders(token);
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/articles/${articleId}`, {
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-      'Content-Type': 'application/json',
-    },
+    headers,
   });
   if (!response.ok) {
     const error = await response.json();
@@ -51,7 +45,7 @@ export async function getArticle(articleId: string | number) {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message ?? "Erreur lors de la récupération de l'article");
+    throw new Error(error ?? "Erreur lors de la récupération de l'article");
   }
 
   return await response.json();
