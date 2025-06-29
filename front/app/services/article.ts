@@ -62,8 +62,14 @@ export async function getArticle(articleId: string | number) {
   return await response.json();
 }
 
-export async function getAllArticles(): Promise<ArticlesResponse> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/articles`);
+export async function getAllArticles(categoryId?: number): Promise<ArticlesResponse> {
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/articles`);
+
+  if (categoryId) {
+    url.searchParams.append('category_id', categoryId.toString());
+  }
+
+  const response = await fetch(url.toString());
 
   if (!response.ok) {
     const error = await response.json();

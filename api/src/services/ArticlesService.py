@@ -26,6 +26,7 @@ class ArticleService:
         )
         if not category:
             raise HTTPException(status_code=400, detail="La catégorie n'existe pas")
+        # TODO sanitize the content
         new_article = Article(
             title=create_article.title,
             content=create_article.content,
@@ -52,21 +53,10 @@ class ArticleService:
     ) -> Optional[Article]:
         article = await session.get(Article, article_id)
         if not article:
-            raise RequestValidationError(errors=[{"msg": "Article introuvable"}])
-        return article
-
-    @classmethod
-    async def get_all_by_category(
-        cls, session: SessionDep, category_id: int
-    ) -> List[Article]:
-        sql = select(Article).where(Article.category_id == category_id)
-        result = await session.exec(sql)
-        articles = result.all()
-        if not articles:
-            raise RequestValidationError(
-                errors=[{"msg": "Aucun article trouvé pour cette catégorie"}]
+            raise HTTPException(
+                status_code=404, detail="Article introuvable"
             )
-        return articles
+        return article
 
     @classmethod
     async def get_all(
@@ -78,7 +68,9 @@ class ArticleService:
         result = await session.exec(sql)
         rows = result.all()
         if not rows:
-            raise RequestValidationError(errors=[{"msg": "Aucun article trouvé"}])
+            raise HTTPException(
+                status_code=404, detail="Aucun article trouvé"
+            )
         mapped_articles = []
         for article, _, _ in rows:
             article_model = article.model_dump()

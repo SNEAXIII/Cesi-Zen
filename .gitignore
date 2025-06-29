@@ -2,6 +2,7 @@
 data/db/*
 .coverage
 *.env
+todo
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
