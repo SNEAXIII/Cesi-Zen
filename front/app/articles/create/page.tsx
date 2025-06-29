@@ -1,20 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import { createArticle }    from '@/app/services/content';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { EditorToolbar } from '@/components/editor-toolbar';
 import { CategorySelector } from '@/components/category-selector';
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 
@@ -25,10 +29,12 @@ const formSchema = z.object({
   content: z.string().min(10, {
     message: 'Le contenu doit contenir au moins 10 caractères.',
   }),
-  category: z.string({
+  category: z.number({
     required_error: 'Veuillez sélectionner une catégorie',
+    invalid_type_error: 'L\'ID de la catégorie doit être un nombre',
+  }).min(1, {
+    message: 'Veuillez sélectionner une catégorie valide',
   }),
-  coverImage: z.instanceof(File).optional(),
 });
 
 type ArticleFormValues = z.infer<typeof formSchema>;
@@ -36,16 +42,16 @@ type ArticleFormValues = z.infer<typeof formSchema>;
 export default function CreateArticlePage() {
   const { data: session } = useSession();
   const router = useRouter();
-  
+
   const form = useForm<ArticleFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       content: '',
-      category: '',
+      category: 0,
     },
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEditorChange = (content: string) => {
@@ -64,26 +70,18 @@ export default function CreateArticlePage() {
   };
 
   const createArticle = async (data: ArticleFormValues) => {
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('content', data.content);
-    formData.append('category', data.category);
-    
-    if (data.coverImage) {
-      formData.append('coverImage', data.coverImage);
-    }
-
-    const response = await fetch('/api/articles', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Erreur lors de la création de l\'article');
+    try {
+      setIsSubmitting(true);
+      await createArticle({
+        title: data.title,
+        content: data.content,
+        category: data.category,
+      });
+      handleSuccess();
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,8 +90,7 @@ export default function CreateArticlePage() {
       alert('Vous devez être connecté pour créer un article');
       return;
     }
-console.log(data);
-    setIsSubmitting(true);
+    console.log(data);
 
     try {
       await createArticle(data);
@@ -106,7 +103,7 @@ console.log(data);
   };
 
   return (
-    <div className="container max-w-4xl py-6">
+    <div className='container max-w-4xl py-6'>
       <Card>
         <CardHeader>
           <CardTitle>Créer un nouvel article</CardTitle>
@@ -116,15 +113,21 @@ console.log(data);
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className='space-y-6'
+            >
               <FormField
                 control={form.control}
-                name="title"
+                name='title'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Titre de l'article</FormLabel>
                     <FormControl>
-                      <Input placeholder="Entrez le titre de l'article" {...field} />
+                      <Input
+                        placeholder="Entrez le titre de l'article"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,12 +136,12 @@ console.log(data);
 
               <FormField
                 control={form.control}
-                name="content"
+                name='content'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contenu de l'article</FormLabel>
                     <FormControl>
-                      <div className="rounded-md border p-2">
+                      <div className='rounded-md border p-2'>
                         <SimpleEditor
                           content={field.value}
                           onUpdate={handleEditorChange}
@@ -152,43 +155,24 @@ console.log(data);
 
               <CategorySelector
                 control={form.control}
-                name="categories"
-                label="Catégories"
+                name='categories'
+                label='Catégories'
               />
 
-              <FormField
-                control={form.control}
-                name="coverImage"
-                render={({ field: { value, onChange, ...field } }) => (
-                  <FormItem>
-                    <FormLabel>Image de couverture</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          onChange(file);
-                        }}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end gap-4 pt-4">
+              <div className='flex justify-end gap-4 pt-4'>
                 <Button
-                  type="button"
-                  variant="outline"
+                  type='button'
+                  variant='outline'
                   onClick={() => router.push('/articles')}
                   disabled={isSubmitting}
                 >
                   Annuler
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Publication en cours...' : 'Publier l\'article'}
+                <Button
+                  type='submit'
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Publication en cours...' : "Publier l'article"}
                 </Button>
               </div>
             </form>
