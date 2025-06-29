@@ -11,6 +11,7 @@ from src.dto.dto_articles import (
 from src.models import Article, Category, User
 from src.services.CategoryService import CategoryService
 from src.utils.db import SessionDep
+from src.utils.sanitizer import sanitize_content_async
 
 
 class ArticleService:
@@ -26,10 +27,10 @@ class ArticleService:
         )
         if not category:
             raise HTTPException(status_code=400, detail="La catégorie n'existe pas")
-        # TODO sanitize the content
+        sanitized_content = sanitize_content_async(create_article.content)
         new_article = Article(
             title=create_article.title,
-            content=create_article.content,
+            content=sanitized_content,
             category=category,
             user=current_user,
         )
