@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateInFrenchLong } from '@/app/lib/utils';
 import { Article, getArticle } from '@/app/services/article';
-import RichTextContent from '@/app/components/RichTextContent';
+import RichTextContent from '@/app/ui/html-viewer/RichTextContent';
 
 export default function ArticlePage() {
   const router = useRouter();

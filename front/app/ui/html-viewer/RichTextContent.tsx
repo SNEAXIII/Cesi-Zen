@@ -3,6 +3,10 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useEffect } from 'react';
+import '@/components/tiptap-node/code-block-node/code-block-node.scss';
+import '@/components/tiptap-node/image-node/image-node.scss';
+import '@/components/tiptap-node/list-node/list-node.scss';
+import '@/components/tiptap-node/paragraph-node/paragraph-node.scss';
 
 type RichTextContentProps = {
   content: string;
@@ -18,7 +22,6 @@ export default function RichTextContent({ content, className = '' }: RichTextCon
     editable: false,
   });
 
-  // Mettre à jour le contenu si la prop content change
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
@@ -27,15 +30,11 @@ export default function RichTextContent({ content, className = '' }: RichTextCon
 
   if (!editor) {
     return (
-      <div className={`prose max-w-none ${className}`}>
-        <div dangerouslySetInnerHTML={{ __html: content }} />
-      </div>
+      <div className={`simple-editor ${className}`} dangerouslySetInnerHTML={{ __html: content }} />
     );
   }
 
   return (
-    <div className={`prose max-w-none ${className}`}>
-      <EditorContent editor={editor} className={className} />
-    </div>
+    <EditorContent editor={editor} />
   );
 }
