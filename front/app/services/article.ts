@@ -5,7 +5,18 @@ interface ArticleData {
   content: string;
   category: string | number;
 }
+export interface Article {
+  id: number;
+  title: string;
+  id_category: number;
+  creator: string;
+  category: string;
+}
 
+export interface ArticlesResponse {
+  articles: Article[];
+  count: number;
+}
 export async function createArticle(articleData: ArticleData, token?: string) {
   const body = JSON.stringify({
     title: articleData.title,
@@ -51,7 +62,7 @@ export async function getArticle(articleId: string | number) {
   return await response.json();
 }
 
-export async function getAllArticles() {
+export async function getAllArticles(): Promise<ArticlesResponse> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/articles`);
 
   if (!response.ok) {
