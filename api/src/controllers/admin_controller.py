@@ -1,7 +1,9 @@
 import uuid
-from typing import Optional
+from typing import Optional, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+
+from src.dto.dto_articles import CreateArticle
 from src.dto.dto_utilisateurs import UserAdminViewAllUsers
 from src.enums.Roles import Roles
 from src.Messages.user_messages import (
@@ -10,6 +12,8 @@ from src.Messages.user_messages import (
     TARGET_USER_ENABLED_SUCCESSFULLY,
     TARGET_USER_PROMOTED_SUCCESSFULLY,
 )
+from src.models import User
+from src.services.ArticlesService import ArticleService
 from src.services.AuthService import AuthService
 from src.services.UserService import UserService
 from src.utils.db import SessionDep
@@ -68,3 +72,22 @@ async def delete_user(session: SessionDep, user_uuid_to_delete: uuid.UUID):
 async def patch_promote_user(session: SessionDep, user_uuid_to_promote: uuid.UUID):
     await UserService.admin_patch_promote_user(session, user_uuid_to_promote)
     return {"message": TARGET_USER_PROMOTED_SUCCESSFULLY}
+
+
+@admin_controller.post("/article", status_code=201)
+async def create_article(
+    body: CreateArticle,
+    current_user: Annotated[User, Depends(AuthService.get_current_user_in_jwt)],
+    session: SessionDep,
+):
+    await ArticleService.create_article(session,current_user, body)
+    return {"message": "Article créé avec succès"}
+
+
+@admin_controller.delete("/article/{article_id}", status_code=200)
+async def delete_article(
+    article_id: int,
+    session: SessionDep,
+):
+    await ArticleService.delete_article(session, article_id)
+    return {"message": "Article supprimé avec succès"}

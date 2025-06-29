@@ -18,7 +18,8 @@ from src.Messages.user_messages import (
 )
 from src.Messages.validators_messages import (
     EMAIL_ALREADY_EXISTS_ERROR,
-    LOGIN_ALREADY_EXISTS_ERROR, PASSWORD_WRONG_IN_DATABASE,
+    LOGIN_ALREADY_EXISTS_ERROR,
+    PASSWORD_WRONG_IN_DATABASE,
 )
 from src.enums.Roles import Roles
 from src.models import User
@@ -252,27 +253,3 @@ class UserService:
             total_pages=total_pages,
             current_page=page,
         )
-
-
-# async def update_utilisateur(session: SessionDep, user_id, **kwargs) -> Optional[User]:
-#     user = await session.get(User, user_id)
-#     if not user:
-#         return None
-#     for key, value in kwargs.items():
-#         if hasattr(user, key):
-#             setattr(user, key, value)
-#
-#     session.add(user)
-#     await session.commit()
-#     await session.refresh(user)
-#     return user
-#
-#
-# async def delete_utilisateur(session: SessionDep, user_id):
-#     user = session.get(User, user_id)
-#     if not user:
-#         return False
-#
-#     session.delete(user)
-#     await session.commit()
-#     return True

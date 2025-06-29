@@ -7,8 +7,7 @@ from src.enums.Roles import Roles
 
 if TYPE_CHECKING:
     from src.models.LoginLog import LoginLog
-    from src.models.Category import Category
-    from src.models.Content import Content
+    from src.models.Articles import Article
     from src.models.ExerciseLog import ExerciseLog
 
 
@@ -26,7 +25,7 @@ class User(SQLModel, table=True):
     role: Roles = Field(default=Roles.USER)
 
     # Relations
-    contents: List["Content"] = Relationship(back_populates="user")
+    articles: List["Article"] = Relationship(back_populates="user")
     connexions: List["LoginLog"] = Relationship(back_populates="user")
     exercises: List["ExerciseLog"] = Relationship(back_populates="user")
 
