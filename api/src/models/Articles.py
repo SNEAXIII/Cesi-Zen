@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -12,7 +13,7 @@ class Article(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
     content:str
-    id_user: str = Field(foreign_key="user.id")
+    id_user: uuid.UUID = Field(foreign_key="user.id")
     id_category: int = Field(foreign_key="category.id")
 
     # Relations
