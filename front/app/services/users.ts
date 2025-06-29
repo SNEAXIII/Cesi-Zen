@@ -1,4 +1,5 @@
 import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table/table-header';
+import { getHeaders } from '@/app/lib/utils';
 
 export interface User {
   login: string;
@@ -53,19 +54,7 @@ export interface ApiErrorResponse {
   errors: ValidationErrors;
 }
 
-function getHeaders(token?: string): HeadersInit {
-  const headers: HeadersInit = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-    console.log('Using token for authorization');
-  } else {
-    console.warn('No token provided for authentication');
-  }
-  return headers;
-}
+
 export const getUsers = async (
   page: number = 1,
   size: number = 10,

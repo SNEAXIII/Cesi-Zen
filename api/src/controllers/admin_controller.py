@@ -74,7 +74,7 @@ async def patch_promote_user(session: SessionDep, user_uuid_to_promote: uuid.UUI
     return {"message": TARGET_USER_PROMOTED_SUCCESSFULLY}
 
 
-@admin_controller.post("/article", status_code=201)
+@admin_controller.post("/articles", status_code=201)
 async def create_article(
     body: CreateArticle,
     current_user: Annotated[User, Depends(AuthService.get_current_user_in_jwt)],
@@ -84,7 +84,7 @@ async def create_article(
     return {"message": "Article créé avec succès"}
 
 
-@admin_controller.delete("/article/{article_id}", status_code=200)
+@admin_controller.delete("/articles/{article_id}", status_code=200)
 async def delete_article(
     article_id: int,
     session: SessionDep,
