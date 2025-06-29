@@ -70,7 +70,7 @@ async def check_user_role(
     method = request.method
     # body = await request.body()
     ic(f"Requested {method} {uri = }")
-    # print(f"{body = }")
+    print(f"{body = }")
     start_time = perf_counter()
     response = await next_function(request)
     process_time = perf_counter() - start_time

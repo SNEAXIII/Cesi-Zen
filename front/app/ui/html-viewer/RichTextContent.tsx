@@ -7,6 +7,7 @@ import '@/components/tiptap-node/code-block-node/code-block-node.scss';
 import '@/components/tiptap-node/image-node/image-node.scss';
 import '@/components/tiptap-node/list-node/list-node.scss';
 import '@/components/tiptap-node/paragraph-node/paragraph-node.scss';
+
 type RichTextContentProps = {
   content: string;
   className?: string;
@@ -19,6 +20,7 @@ export default function RichTextContent({ content, className = '' }: RichTextCon
     editable: false,
   });
 
+
   if (!editor) {
     return (
       <div
@@ -27,6 +29,5 @@ export default function RichTextContent({ content, className = '' }: RichTextCon
       />
     );
   }
-
   return <EditorContent editor={editor} />;
 }
