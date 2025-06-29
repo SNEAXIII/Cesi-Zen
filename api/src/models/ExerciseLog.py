@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
@@ -12,7 +13,7 @@ class ExerciseLog(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     date_execution: datetime = Field(default_factory=datetime.now)
-    id_user: str = Field(foreign_key="user.id")
+    id_user: uuid.UUID = Field(foreign_key="user.id")
     exercise_coherence_cardiac_id: int = Field(
         foreign_key="exercise_coherence_cardiac.id"
     )
