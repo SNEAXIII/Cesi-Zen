@@ -1,12 +1,13 @@
-from typing import Optional, List
+from typing import List, Optional
 
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi.exceptions import HTTPException, RequestValidationError
 from sqlmodel import select
-
-from src.models import Article, User
 from src.dto.dto_articles import (
     CreateArticle,
+    GetAllArticleResponse,
+    GetArticleResponseMin,
 )
+from src.models import Article, User, Category
 from src.services.CategoryService import CategoryService
 from src.utils.db import SessionDep
 
@@ -65,3 +66,18 @@ class ArticleService:
                 errors=[{"msg": "Aucun article trouvé pour cette catégorie"}]
             )
         return articles
+
+    @classmethod
+    async def get_all(cls, session: SessionDep) -> GetAllArticleResponse:
+        sql = select(Article, User, Category).join(User).join(Category)
+        result = await session.exec(sql)
+        rows = result.all()
+        if not rows:
+            raise RequestValidationError(errors=[{"msg": "Aucun article trouvé"}])
+        mapped_articles = []
+        for article, _, _ in rows:
+            article_model = article.model_dump()
+            article_model["category"] = article.category.label
+            article_model["creator"] = article.user.login
+            mapped_articles.append(GetArticleResponseMin.model_validate(article_model))
+        return GetAllArticleResponse(articles=mapped_articles, count=len(mapped_articles))

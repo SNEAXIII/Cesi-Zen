@@ -9,6 +9,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from src.controllers.admin_controller import admin_controller
+from src.controllers.articles_controller import article_controller
 from src.controllers.auth_controller import auth_controller
 from src.controllers.user_controller import user_controller
 from src.controllers.category_controller import category_controller
@@ -30,6 +31,7 @@ app.include_router(admin_controller)
 app.include_router(auth_controller)
 app.include_router(user_controller)
 app.include_router(category_controller)
+app.include_router(article_controller)
 middleware_logger = logging.getLogger("Middleware")
 
 
