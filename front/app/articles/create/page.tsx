@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { createArticle as createArticleService } from '@/app/services/article'; // Renommage ici
+import { createArticle as createArticleService } from '@/app/services/article';
+import { getAllCategories } from '@/app/services/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
 import {
   Form,
   FormControl,
@@ -19,8 +19,20 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { CategorySelector } from '@/components/category-selector';
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
+
+type Category = {
+  id: number;
+  label: string;
+};
 
 const formSchema = z.object({
   title: z.string().min(5, {
@@ -48,7 +60,24 @@ type ArticleFormValues = {
 
 export default function CreateArticlePage() {
   const { data: session } = useSession();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getAllCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Erreur lors du chargement des catégories:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const form = useForm<ArticleFormValues>({
     resolver: zodResolver(formSchema) as any,
@@ -95,7 +124,7 @@ export default function CreateArticlePage() {
   };
 
   return (
-    <div className='container max-w-4xl py-6'>
+    <div className='container w-full py-6'>
       <Card>
         <CardHeader>
           <CardTitle>Créer un nouvel article</CardTitle>
@@ -145,10 +174,38 @@ export default function CreateArticlePage() {
                 )}
               />
 
-              <CategorySelector<ArticleFormValues>
+              <FormField
                 control={form.control}
                 name="category"
-                label="Catégorie"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Catégorie</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      value={field.value ? String(field.value) : ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez une catégorie" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isLoading ? (
+                          <div className="flex justify-center p-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          </div>
+                        ) : (
+                          categories.map((category) => (
+                            <SelectItem key={category.id} value={String(category.id)}>
+                              {category.label}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
               <div className='flex justify-end gap-4 pt-4'>
                 <Button

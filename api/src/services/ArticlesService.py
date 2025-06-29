@@ -2,12 +2,13 @@ from typing import List, Optional
 
 from fastapi.exceptions import HTTPException, RequestValidationError
 from sqlmodel import select
+
 from src.dto.dto_articles import (
     CreateArticle,
     GetAllArticleResponse,
     GetArticleResponseMin,
 )
-from src.models import Article, User, Category
+from src.models import Article, Category, User
 from src.services.CategoryService import CategoryService
 from src.utils.db import SessionDep
 
@@ -68,8 +69,12 @@ class ArticleService:
         return articles
 
     @classmethod
-    async def get_all(cls, session: SessionDep) -> GetAllArticleResponse:
+    async def get_all(
+        cls, session: SessionDep, category_id: Optional[int]
+    ) -> GetAllArticleResponse:
         sql = select(Article, User, Category).join(User).join(Category)
+        if category_id:
+            sql = sql.where(Category.id == category_id)
         result = await session.exec(sql)
         rows = result.all()
         if not rows:
@@ -80,4 +85,6 @@ class ArticleService:
             article_model["category"] = article.category.label
             article_model["creator"] = article.user.login
             mapped_articles.append(GetArticleResponseMin.model_validate(article_model))
-        return GetAllArticleResponse(articles=mapped_articles, count=len(mapped_articles))
+        return GetAllArticleResponse(
+            articles=mapped_articles, count=len(mapped_articles)
+        )

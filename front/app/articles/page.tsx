@@ -1,24 +1,57 @@
 'use client';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-
-type Article = {
-  id: string;
-  title: string;
-  excerpt: string;
-  author: {
-    name: string;
-    image?: string;
-  };
-  createdAt: string;
-  categories: string[];
-  coverImage?: string;
-};
+import { useEffect, useState } from 'react';
+import { getAllArticles, Article } from '@/app/services/article';
 
 export default function ArticlesPage() {
   const { data: session } = useSession();
-  // Dans une application réelle, vous récupéreriez les articles depuis votre API
-  const articles: Article[] = [];
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const data = await getAllArticles();
+        setArticles(data.articles);
+      } catch (err) {
+        setError('Erreur lors du chargement des articles');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className='flex justify-center items-center min-h-screen'>
+        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500'></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+        <div className='bg-red-50 border-l-4 border-red-400 p-4'>
+          <div className='flex'>
+            <div className='flex-shrink-0'>
+              <svg className='h-5 w-5 text-red-400' viewBox='0 0 20 20' fill='currentColor'>
+                <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z' clipRule='evenodd' />
+              </svg>
+            </div>
+            <div className='ml-3'>
+              <p className='text-sm text-red-700'>{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
@@ -64,67 +97,32 @@ export default function ArticlesPage() {
           )}
         </div>
       ) : (
-        <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
           {articles.map((article) => (
             <article
               key={article.id}
-              className='flex flex-col overflow-hidden rounded-lg shadow-lg'
+              className='flex flex-col h-full overflow-hidden rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow duration-200'
             >
-              {article.coverImage && (
-                <div className='flex-shrink-0'>
-                  <img
-                    className='h-48 w-full object-cover'
-                    src={article.coverImage}
-                    alt=''
-                  />
-                </div>
-              )}
-              <div className='flex flex-1 flex-col justify-between bg-white p-6'>
+              <div className='p-6 flex-1 flex flex-col'>
                 <div className='flex-1'>
-                  <div className='flex flex-wrap gap-2 mt-2'>
-                    {article.categories.map((category) => (
-                      <span
-                        key={category}
-                        className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'
-                      >
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                  <Link
-                    href={`/articles/${article.id}`}
-                    className='mt-2 block'
-                  >
+                  <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-3'>
+                    {article.category}
+                  </span>
+                  <Link href={`/articles/${article.id}`} className='block'>
                     <h3 className='text-xl font-semibold text-gray-900'>{article.title}</h3>
-                    <p className='mt-3 text-base text-gray-500'>{article.excerpt}</p>
                   </Link>
                 </div>
                 <div className='mt-6 flex items-center'>
                   <div className='flex-shrink-0'>
-                    {article.author.image ? (
-                      <img
-                        className='h-10 w-10 rounded-full'
-                        src={article.author.image}
-                        alt={article.author.name}
-                      />
-                    ) : (
-                      <span className='h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center'>
-                        <span className='text-gray-500 text-lg'>
-                          {article.author.name.charAt(0).toUpperCase()}
-                        </span>
-                      </span>
-                    )}
+                    <span className='sr-only'>{article.creator}</span>
+                    <div className='h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center'>
+                      <span className='text-blue-800 font-medium'>{article.creator.charAt(0)}</span>
+                    </div>
                   </div>
                   <div className='ml-3'>
-                    <p className='text-sm font-medium text-gray-900'>{article.author.name}</p>
-                    <div className='flex space-x-1 text-sm text-gray-500'>
-                      <time dateTime={article.createdAt}>
-                        {new Date(article.createdAt).toLocaleDateString('fr-FR', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
-                      </time>
+                    <p className='text-sm font-medium text-gray-900'>{article.creator}</p>
+                    <div className='text-sm text-gray-500'>
+                      Catégorie: {article.category}
                     </div>
                   </div>
                 </div>
