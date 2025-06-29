@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-const PUBLIC_PATHS = ['/api/auth', '/login', '/register', '/'];
+const PUBLIC_PATHS = ['/', '/api/auth', '/login', '/register', '/articles'];
 const ADMIN_PATHS = ['/dashboard', '/admin', '/articles/create'];
 
 function isPathMatching(path: string, paths: string[]): boolean {

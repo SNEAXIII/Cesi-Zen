@@ -2,7 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter
 
-from src.dto.dto_articles import GetAllArticleResponse
+from src.dto.dto_articles import GetAllArticleResponse, GetArticleResponseFull
 from src.models import Article
 from src.services.ArticlesService import ArticleService
 from src.utils.db import SessionDep
@@ -22,7 +22,7 @@ async def get_articles(
     return result
 
 
-@article_controller.get("/{article_id}", response_model=Article)
+@article_controller.get("/{article_id}", response_model=GetArticleResponseFull)
 async def get_article(
     article_id: int,
     session: SessionDep,
