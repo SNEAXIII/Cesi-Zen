@@ -1,4 +1,4 @@
-"""create my table table
+"""init
 
 Revision ID: db1281a01a7a
 Revises: 

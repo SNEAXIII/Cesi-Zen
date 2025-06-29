@@ -26,7 +26,6 @@ class User(SQLModel, table=True):
     role: Roles = Field(default=Roles.USER)
 
     # Relations
-    categories: List["Category"] = Relationship(back_populates="user")
     contents: List["Content"] = Relationship(back_populates="user")
     connexions: List["LoginLog"] = Relationship(back_populates="user")
     exercises: List["ExerciseLog"] = Relationship(back_populates="user")

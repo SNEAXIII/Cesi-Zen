@@ -1,4 +1,4 @@
-"""create my table
+"""modify user properties and fix typo
 
 Revision ID: 6cd838ed70f0
 Revises: db1281a01a7a
