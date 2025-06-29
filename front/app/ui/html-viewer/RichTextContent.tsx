@@ -7,7 +7,6 @@ import '@/components/tiptap-node/code-block-node/code-block-node.scss';
 import '@/components/tiptap-node/image-node/image-node.scss';
 import '@/components/tiptap-node/list-node/list-node.scss';
 import '@/components/tiptap-node/paragraph-node/paragraph-node.scss';
-
 type RichTextContentProps = {
   content: string;
   className?: string;
@@ -15,26 +14,19 @@ type RichTextContentProps = {
 
 export default function RichTextContent({ content, className = '' }: RichTextContentProps) {
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-    ],
+    extensions: [StarterKit],
     content: content,
     editable: false,
   });
 
-  useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
-    }
-  }, [content, editor]);
-
   if (!editor) {
     return (
-      <div className={`simple-editor ${className}`} dangerouslySetInnerHTML={{ __html: content }} />
+      <div
+        className={`simple-editor ${className}`}
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
     );
   }
 
-  return (
-    <EditorContent editor={editor} />
-  );
+  return <EditorContent editor={editor} />;
 }
