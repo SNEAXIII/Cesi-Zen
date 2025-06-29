@@ -1,8 +1,9 @@
 'use client';
-import { MdOutlineAdminPanelSettings, MdPersonOutline } from 'react-icons/md';
+import { MdOutlineArticle, MdOutlineAdminPanelSettings, MdPersonOutline } from 'react-icons/md';
 import { IoHomeOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
 import clsx from 'clsx';
 
 export enum Role {
@@ -24,6 +25,7 @@ export default function NavLinks({ userRole }: NavLinksProps) {
 
   const links = [
     { name: 'Accueil', href: '/', icon: IoHomeOutline, role: Role.all },
+    { name: 'Articles', href: '/articles', icon: MdOutlineArticle, role: Role.all },
     { name: 'Mon Profil', href: '/profile', icon: MdPersonOutline, role: Role.user },
     {
       name: 'Administration',
