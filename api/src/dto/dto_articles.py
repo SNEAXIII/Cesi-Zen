@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from pydantic import BaseModel
 
@@ -18,6 +19,7 @@ class GetArticleResponseMin(BaseModel):
 
 class GetArticleResponseFull(GetArticleResponseMin):
     content: str
+    created_at: datetime
 
 
 class GetAllArticleResponse(BaseModel):

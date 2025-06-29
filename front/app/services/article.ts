@@ -11,6 +11,8 @@ export interface Article {
   id_category: number;
   creator: string;
   category: string;
+  content: string;
+  created_at: string;
 }
 
 export interface ArticlesResponse {
@@ -51,7 +53,7 @@ export async function deleteArticle(articleId: string | number, token?: string) 
   return true;
 }
 
-export async function getArticle(articleId: string | number) {
+export async function getArticle(articleId: string | number): Promise<Article> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/articles/${articleId}`);
 
   if (!response.ok) {

@@ -1,11 +1,11 @@
-from typing import List, Optional
+from typing import Optional, Tuple
 
 from fastapi.exceptions import HTTPException, RequestValidationError
 from sqlmodel import select
-
 from src.dto.dto_articles import (
     CreateArticle,
     GetAllArticleResponse,
+    GetArticleResponseFull,
     GetArticleResponseMin,
 )
 from src.models import Article, Category, User
@@ -50,13 +50,22 @@ class ArticleService:
     @classmethod
     async def get_article(
         cls, session: SessionDep, article_id: int
-    ) -> Optional[Article]:
-        article = await session.get(Article, article_id)
-        if not article:
-            raise HTTPException(
-                status_code=404, detail="Article introuvable"
-            )
-        return article
+    ) -> GetArticleResponseFull:
+        sql = (
+            select(Article, User, Category)
+            .join(User)
+            .join(Category)
+            .where(Article.id == article_id)
+        )
+        result = await session.execute(sql)
+        tuple_result: Optional[Tuple[Article, User, Category]] = result.first()
+        if not tuple_result:
+            raise HTTPException(status_code=404, detail="Article introuvable")
+        article, _, _ = tuple_result
+        article_model = article.model_dump()
+        article_model["category"] = article.category.label
+        article_model["creator"] = article.user.login
+        return GetArticleResponseFull.model_validate(article_model)
 
     @classmethod
     async def get_all(
@@ -68,9 +77,7 @@ class ArticleService:
         result = await session.exec(sql)
         rows = result.all()
         if not rows:
-            raise HTTPException(
-                status_code=404, detail="Aucun article trouvé"
-            )
+            raise HTTPException(status_code=404, detail="Aucun article trouvé")
         mapped_articles = []
         for article, _, _ in rows:
             article_model = article.model_dump()
