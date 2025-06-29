@@ -3,6 +3,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from src.models.User import User
+    from src.models.Category import Category
 
 
 class Content(SQLModel, table=True):
@@ -17,3 +18,4 @@ class Content(SQLModel, table=True):
 
     # Relations
     user: "User" = Relationship(back_populates="contents")
+    category: "Category" = Relationship(back_populates="contents")

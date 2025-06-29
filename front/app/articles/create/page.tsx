@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { EditorToolbar } from '@/components/editor-toolbar';
 import { CategorySelector } from '@/components/category-selector';
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 
 const formSchema = z.object({
   title: z.string().min(5, {
@@ -47,22 +48,9 @@ export default function CreateArticlePage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleEditorUpdate = ({ editor }: { editor: any }) => {
-    form.setValue('content', editor.getHTML());
+  const handleEditorChange = (content: string) => {
+    form.setValue('content', content, { shouldValidate: true });
   };
-
-  const editor = useEditor({
-    extensions: [StarterKit, Image],
-    content: form.watch('content') || '',
-    onUpdate: handleEditorUpdate,
-  });
-
-  // Mettre à jour le contenu de l'éditeur si nécessaire
-  useEffect(() => {
-    if (editor && !editor.isDestroyed && form.watch('content') !== editor.getHTML()) {
-      editor.commands.setContent(form.watch('content') || '');
-    }
-  }, [editor, form]);
 
   const handleApiError = (error: unknown) => {
     console.error('Erreur:', error);
@@ -104,7 +92,7 @@ export default function CreateArticlePage() {
       alert('Vous devez être connecté pour créer un article');
       return;
     }
-
+console.log(data);
     setIsSubmitting(true);
 
     try {
@@ -151,8 +139,10 @@ export default function CreateArticlePage() {
                     <FormLabel>Contenu de l'article</FormLabel>
                     <FormControl>
                       <div className="rounded-md border p-2">
-                        {editor && <EditorToolbar editor={editor} />}
-                        <EditorContent editor={editor} className="min-h-[200px] px-2" />
+                        <SimpleEditor
+                          content={field.value}
+                          onUpdate={handleEditorChange}
+                        />
                       </div>
                     </FormControl>
                     <FormMessage />
