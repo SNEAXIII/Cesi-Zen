@@ -4,7 +4,7 @@ from fastapi import Depends
 from src.Messages.jwt_messages import CREDENTIALS_EXCEPTION, INSUFFISANT_ROLE_EXCEPTION
 from src.enums.Roles import Roles
 
-from src.models import User
+from src.models import User, LoginLog
 from src.services.JWTService import JWTService, oauth2_scheme
 from src.services.PasswordService import PasswordService
 from src.services.UserService import UserService
@@ -30,6 +30,8 @@ class AuthService:
         if is_correct_password is not True:
             raise CREDENTIALS_EXCEPTION
         user.set_last_login_date()
+        login_log = LoginLog(user=user)
+        session.add(login_log)
         await session.commit()
         return user
 
