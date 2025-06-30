@@ -27,7 +27,7 @@ class ArticleService:
         )
         if not category:
             raise HTTPException(status_code=400, detail="La catégorie n'existe pas")
-        sanitized_content = sanitize_content_async(create_article.content)
+        sanitized_content = await sanitize_content_async(create_article.content)
         new_article = Article(
             title=create_article.title,
             content=sanitized_content,
