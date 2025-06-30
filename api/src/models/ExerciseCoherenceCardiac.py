@@ -1,8 +1,5 @@
-from typing import List, Optional, TYPE_CHECKING
-from sqlmodel import Field, Relationship, SQLModel
-
-if TYPE_CHECKING:
-    from src.models.ExerciseLog import ExerciseLog
+from typing import Optional
+from sqlmodel import Field, SQLModel
 
 
 class ExerciseCoherenceCardiac(SQLModel, table=True):
@@ -14,6 +11,3 @@ class ExerciseCoherenceCardiac(SQLModel, table=True):
     duration_apnea: float
     duration_expiration: float
     number_cycles: int
-
-    # Relations
-    logs: List["ExerciseLog"] = Relationship(back_populates="exercise")
