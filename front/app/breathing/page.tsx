@@ -213,7 +213,6 @@ export default function BreathingPage() {
 
   useEffect(() => {
     if (!isRunning || !currentExercise) return;
-
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -222,7 +221,6 @@ export default function BreathingPage() {
         return prev - 1;
       });
     }, 1000);
-
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -243,22 +241,8 @@ export default function BreathingPage() {
     }
   };
 
-  const getPhaseClass = () => {
-    switch (currentPhase) {
-      case BreathingPhase.INSPIRATION:
-        return 'bg-blue-100 text-blue-800';
-      case BreathingPhase.EXPIRATION:
-        return 'bg-green-100 text-green-800';
-      case BreathingPhase.APNEA:
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return '';
-    }
-  };
-
   const getPhaseDuration = () => {
     if (!currentExercise) return 0;
-
     if (currentPhase === BreathingPhase.INSPIRATION) {
       return currentExercise.duration_inspiration;
     } else if (currentPhase === BreathingPhase.EXPIRATION) {
