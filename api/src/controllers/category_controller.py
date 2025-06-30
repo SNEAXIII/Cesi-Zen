@@ -23,5 +23,5 @@ async def get_category(category_id: int, session: SessionDep):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Catégorie avec l'ID {category_id} non trouvée",
-        ) from None
+        )
     return category

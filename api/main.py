@@ -1,4 +1,3 @@
-import logging
 from time import perf_counter
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -9,6 +8,7 @@ from src.controllers.admin_controller import admin_controller
 from src.controllers.articles_controller import article_controller
 from src.controllers.auth_controller import auth_controller
 from src.controllers.category_controller import category_controller
+from src.controllers.exercise_controller import exercise_controller
 from src.controllers.user_controller import user_controller
 from starlette import status
 from starlette.requests import Request
@@ -30,10 +30,11 @@ app.add_middleware(
 app.include_router(admin_controller)
 app.include_router(auth_controller)
 app.include_router(user_controller)
-app.include_router(category_controller)
 app.include_router(article_controller)
-middleware_logger = logging.getLogger("Middleware")
+app.include_router(category_controller)
+app.include_router(exercise_controller)
 
+ic(app.routes)
 
 def custom_openapi():
     if app.openapi_schema:
@@ -105,4 +106,3 @@ async def http_exception_handler(request: Request, exc):
     )
 
 
-ic(app.routes)
