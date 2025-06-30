@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateInFrenchLong } from '@/app/lib/utils';
 import { Article, getArticle } from '@/app/services/article';
 import RichTextContent from '@/app/ui/html-viewer/RichTextContent';
+import ArticleCreatorBadge from '@/app/ui/users/bubble';
 
 export default function ArticlePage() {
   const router = useRouter();
@@ -106,21 +107,17 @@ export default function ArticlePage() {
         </CardHeader>
         <CardContent>
           <div className='mt-4'>
-            <RichTextContent content={article.content} className='text-gray-700' />
+            <RichTextContent
+              content={article.content}
+              className='text-gray-700'
+            />
           </div>
 
           <div className='mt-8 pt-6 border-t border-gray-200'>
-            <div className='flex items-center'>
-              <div className='h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-3'>
-                <span className='text-blue-800 font-medium'>
-                  {article.creator?.charAt(0) || 'U'}
-                </span>
-              </div>
+            <div className='flex items-center gap-2'>
+              <ArticleCreatorBadge creator={article.creator} />
               <div>
-                <p className='text-sm font-medium text-gray-900'>
-                  {article.creator || 'Auteur inconnu'}
-                </p>
-                <p className='text-sm text-gray-500'>Auteur</p>
+                <p className='text-sm text-gray-500'>Auteur: {article.creator}</p>
               </div>
             </div>
           </div>

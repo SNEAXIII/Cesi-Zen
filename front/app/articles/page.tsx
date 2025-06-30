@@ -16,6 +16,7 @@ import { formatDateInFrenchLong } from '@/app/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { DeleteArticleDialog } from '@/components/articles/delete-article-dialog';
+import ArticleCreatorBadge from '../ui/users/bubble';
 
 type Category = {
   id: number;
@@ -244,11 +245,7 @@ export default function ArticlesPage() {
                   <CardContent className='flex-1 flex flex-col justify-end'>
                     <div className='flex items-center mt-2 pt-2 border-t'>
                       <div className='flex-shrink-0 mr-3'>
-                        <div className='h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center'>
-                          <span className='text-sm text-blue-800 font-medium'>
-                            {article.creator.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
+                      <ArticleCreatorBadge creator={article.creator} />
                       </div>
                       <div>
                         <p className='text-sm font-medium'>{article.creator}</p>

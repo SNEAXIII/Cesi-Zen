@@ -1,9 +1,13 @@
 import Image from 'next/image';
 
-export default function MainCesiZenLogo() {
+interface MainCesiZenLogoProps {
+  className?: string;
+}
+
+export default function MainCesiZenLogo({ className = '' }: MainCesiZenLogoProps) {
   return (
     <div
-      className='flex items-center gap-4 leading-none text-white'
+      className={`flex items-center gap-4 leading-none text-white ${className}`}
       aria-label='Cesi Zen Logo'
     >
       <Image
