@@ -82,7 +82,7 @@ export const {
           email: user.email,
           role: user.role,
           accessToken: user.accessToken,
-          accessTokenExpires: Date.now() + 60 * 60 * 1000, // TODO REMETTRE 1 heure
+          accessTokenExpires: Date.now() + 60 * 60 * 1000,
         };
       }
       if (Date.now() < (token.accessTokenExpires as number)) {

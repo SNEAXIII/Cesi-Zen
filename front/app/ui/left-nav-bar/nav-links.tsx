@@ -20,7 +20,7 @@ interface NavLinksProps {
   userRole: Role;
 }
 
-export default function NavLinks({ userRole }: NavLinksProps) {
+export default function NavLinks({ userRole }: Readonly<NavLinksProps>) {
   const pathname = usePathname();
 
   const links = [

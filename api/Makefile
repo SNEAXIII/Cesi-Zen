@@ -8,6 +8,7 @@ help:
 	@echo "run-dev	-->	run the server in dev mode with auto reload"
 	@echo "create-mig	-->	create fresh new migration"
 	@echo "migrate	-->	execute pending migrations"
+	@echo "fixtures	-->	load all fixtures for one time"
 	@echo "cancel-last	-->	cancel last executed migration"
 	@echo "test-cov	-->	run the test coverage"
 	@echo "create-venv	-->	create the python virtual env"
@@ -32,6 +33,9 @@ create-mig:
 
 migrate:
 	$(RUN_MODULE) alembic upgrade head
+
+fixtures:
+	$(RUN_MODULE) src.fixtures.sample_data
 
 cancel-last:
 	$(RUN_MODULE) alembic downgrade -1
