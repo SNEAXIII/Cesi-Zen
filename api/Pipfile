@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = {extras = ["standard"], version = "*"}
+pyjwt = "*"
+passlib = {extras = ["bcrypt"], version = "<2.0.0,>=1.7.4"}
+python-multipart = "*"
+pydantic-settings = "*"
+sqlmodel = "*"
+aiomysql = "*"
+icecream = "*"
+pymysql = "*"
+alembic = "*"
+bleach = "*"
+
+[dev-packages]
+pytest = "*"
+pytest-asyncio = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+freezegun = "*"
+Faker = "*"
+
+[requires]
+python_version = "3.12"

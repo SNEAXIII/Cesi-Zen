@@ -12,17 +12,16 @@ help:
 	@echo "cancel-last	-->	cancel last executed migration"
 	@echo "test-cov	-->	run the test coverage"
 	@echo "create-venv	-->	create the python virtual env"
-	@echo "dl_base_reqs	-->	install prod requirements"
-	@echo "dl_all_reqs	-->	install prod and dev requirements"
+	@echo "dl_prod_reqs	-->	install prod requirements"
+	@echo "dl_dev_reqs	-->	install prod and dev requirements"
 
 create-venv:
 	python -m venv venv
 
-dl_base_reqs:
+dl_prod_reqs:
 	$(RUN_MODULE) pip install -r requirements.txt
 
-dl_all_reqs:
-	make dl_base_reqs
+dl_dev_reqs:
 	$(RUN_MODULE) pip install -r requirements_dev.txt
 
 run-dev:
