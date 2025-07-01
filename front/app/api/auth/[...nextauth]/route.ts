@@ -114,6 +114,20 @@ export const {
     signIn: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
+  logger: {
+    error(error: Error) {
+      console.error(error);
+    },
+    warn(code: string) {
+      console.warn(code);
+    },
+    debug(message: string, metadata?: unknown) {
+      if (process.env.NODE_ENV === 'development') {
+        console.debug(message, metadata);
+      }
+    },
+  },
   session: {
     strategy: 'jwt',
   },
