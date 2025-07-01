@@ -11,8 +11,8 @@ import {
 import { UserActions } from '@/app/ui/dashboard/actions/user-actions';
 
 interface UserRowProps {
-  user: User;
-  loadUsers: () => void;
+  readonly user: Readonly<User>;
+  readonly loadUsers: () => void;
 }
 
 export function UserRow({ user, loadUsers }: UserRowProps) {
@@ -25,14 +25,14 @@ export function UserRow({ user, loadUsers }: UserRowProps) {
       <RowUserLastLoginDate lastLoginDate={user.last_login_date} />
       {/* TODO FIX THIS ESLINT ERROR */}
       <UserStatusBadge
-        deleted_at={user.deleted_at}
-        disabled_at={user.disabled_at}
+        deleted_at={!!user.deleted_at}
+        disabled_at={!!user.disabled_at}
       />
       <UserActions
         userId={user.id}
         isAdmin={user.role === 'admin'}
-        isDisabled={user.disabled_at}
-        isDeleted={user.deleted_at}
+        isDisabled={!!user.disabled_at}
+        isDeleted={!!user.deleted_at}
         loadUsers={loadUsers}
       />
     </TableRow>

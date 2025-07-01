@@ -4,16 +4,13 @@ import jwt from 'jsonwebtoken';
 
 interface JwtPayload {
   user_id: string;
-  sub?: string;
-  email?: string;
-  role?: string;
+  sub: string;
+  email: string;
+  role: string;
 }
 
 export const {
   handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
 } = NextAuth({
   providers: [
     Credentials({
@@ -72,8 +69,7 @@ export const {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      // User only exists on signIn
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         return {
           ...token,
@@ -83,6 +79,7 @@ export const {
           role: user.role,
           accessToken: user.accessToken,
           accessTokenExpires: Date.now() + 60 * 60 * 1000,
+          expired: false,
         };
       }
       if (Date.now() < (token.accessTokenExpires as number)) {
@@ -93,7 +90,7 @@ export const {
         expired: true,
       };
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (token.expired) {
         return {
           ...session,
@@ -127,10 +124,11 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-      name?: string;
-      email?: string;
-      role?: string;
+      name: string;
+      email: string;
+      role: string;
     };
     accessToken: string;
+    expired: boolean;
   }
 }

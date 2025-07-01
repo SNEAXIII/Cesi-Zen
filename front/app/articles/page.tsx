@@ -88,7 +88,7 @@ export default function ArticlesPage() {
     } catch (err) {
       console.error("Erreur lors de la suppression de l'article:", err);
       toast.error(`Erreur lors de la suppression de l'article: ${(err as Error).message}`);
-      throw err; // Important pour que le dialogue puisse gérer l'erreur
+      throw err;
     } finally {
       setIsDeleting(null);
     }

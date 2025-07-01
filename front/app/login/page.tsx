@@ -2,7 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ interface LoginFormData {
   password: string;
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') ?? '/';
@@ -63,7 +63,6 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Identifiants invalides');
       } else {
-        // Rediriger vers l'URL de callback ou le tableau de bord par défaut
         router.push(callbackUrl);
         router.refresh();
       }
@@ -136,13 +135,6 @@ export default function LoginPage() {
                   >
                     Mot de passe
                   </label>
-                  {/* TODO FAIRE CA */}
-                  {/* <a
-                    href='#'
-                    className='text-xs text-primary hover:underline'
-                  >
-                    Mot de passe oublié ?
-                  </a> */}
                 </div>
                 <Input
                   id='password'
@@ -183,5 +175,12 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageContent />
+    </Suspense>
   );
 }
