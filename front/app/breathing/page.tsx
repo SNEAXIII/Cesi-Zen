@@ -2,18 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { getExercises, Exercise, ExercisesResponse } from '@/app/services/exercise';
-
-enum BreathingPhase {
-  INSPIRATION = 'inspiration',
-  EXPIRATION = 'expiration',
-  APNEA = 'apnea',
-}
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Play, Pause, X } from 'lucide-react';
-
+enum BreathingPhase {
+  INSPIRATION = 'inspiration',
+  EXPIRATION = 'expiration',
+  APNEA = 'apnea',
+}
 type ExerciseCardProps = {
   exercise: Exercise;
   onStart: (exercise: Exercise) => void;
@@ -253,12 +251,11 @@ export default function BreathingPage() {
   };
   const getFillHeight = () => {
     if (!currentExercise || !timeLeft) return '0%';
-    console.log(currentPhase);
     if (![BreathingPhase.INSPIRATION, BreathingPhase.EXPIRATION].includes(currentPhase))
       return '100%';
     const duration = getPhaseDuration();
     if (duration === 0) return '0%';
-    const percentage = ((duration - timeLeft + 1) / duration) * 100;
+    const percentage = ((duration - timeLeft) / duration) * 100;
     if (currentPhase === BreathingPhase.EXPIRATION) {
       return `${100 - percentage}%`;
     }
