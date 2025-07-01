@@ -1,66 +1,59 @@
 @startuml
 skinparam classAttributeIconSize 0
-'hide circle
-hide empty
 skinparam linetype polyline
 !theme sunlust
 
-entity Category {
-   + id: int
-   label: varchar
-   description: varchar
-   # id_user: uuid
-}
-entity Content {
-   + id: int
-   title: varchar
-   description: varchar
-   filepath: varchar
-   # id_user: uuid
-   # id_category: int
-}
-entity CategoryContent {
-    +# id_content: int
-    +# id_category: int
-}
-entity CardiacCoherenceExercise {
-   + id: int
-   name: varchar
-   durationInspiration: float
-   durationApnea: float
-   durationExpiration: float
-   numberCycles: int
-}
-entity LoginLog {
-   + id: int
-   dateConnexion: datetime
-   # id_user: uuid
-}
-entity ExerciseLog {
-   + id: int
-   dateExecution: datetime
-   # id_user: uuid
-   # exercise_id: int
-}
 entity User {
    + id: uuid
    login: varchar
    email: varchar
    hashed_password: varchar
-   disabled: bool
-   deleted: bool
+   disabled_at: null | datetime
+   deleted_at: null | datetime
    created_at: datetime
-   last_login_date: datetime
-   role: enum {ADMIN, USER, ANONYMOUS}
+   last_login_date: null | datetime
+   role: enum {ADMIN, USER}
 }
 
-Category -up-> CategoryContent
-Content -up-> CategoryContent
+entity Article {
+   + id: int
+   title: varchar
+   content: text
+   created_at: datetime
+   # id_user: uuid
+   # id_category: int
+}
 
-User -up-> Category
-User -up-> Content
+entity Category {
+   + id: int
+   label: varchar
+}
 
+entity LoginLog {
+   + id: int
+   date_connexion: datetime
+   # id_user: uuid
+}
+
+entity CardiacCoherenceExercise {
+   + id: int
+   name: varchar
+   duration_inspiration: float
+   duration_apnea: float
+   duration_expiration: float
+   number_cycles: int
+}
+
+entity ExerciseLog {
+   + id: int
+   date_execution: datetime
+   # id_user: uuid
+   # exercise_id: int
+}
+
+User -down-> Article
+User -down-> LoginLog
+User -down-> ExerciseLog
+Category -down-> Article
 CardiacCoherenceExercise -down-> ExerciseLog
-User -left-> ExerciseLog
-User -right-> LoginLog
 @enduml
