@@ -151,7 +151,7 @@ def load_sample_data():
                 session.add(elem)
             session.commit()
             print("✅ Categories chargées avec succès !")
-            articles = create_sample_articles(admins, categories, rolls=3)
+            articles = create_sample_articles(admins, categories, rolls=1)
             for elem in articles:
                 session.add(elem)
             session.commit()
