@@ -75,6 +75,7 @@ class ArticleService:
         sql = select(Article, User, Category).join(User).join(Category)
         if category_id:
             sql = sql.where(Category.id == category_id)
+        sql = sql.order_by(Article.created_at.desc())
         result = await session.exec(sql)
         rows = result.all()
         if not rows:

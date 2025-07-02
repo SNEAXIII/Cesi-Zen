@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { getAllArticles, Article, deleteArticle } from '@/app/services/article';
+import { getAllArticles, Article, deleteArticle } from '@/app/services/articles';
 import { getAllCategories } from '@/app/services/category';
 import {
   Select,
@@ -88,7 +88,7 @@ export default function ArticlesPage() {
     } catch (err) {
       console.error("Erreur lors de la suppression de l'article:", err);
       toast.error(`Erreur lors de la suppression de l'article: ${(err as Error).message}`);
-      throw err; // Important pour que le dialogue puisse gérer l'erreur
+      throw err;
     } finally {
       setIsDeleting(null);
     }

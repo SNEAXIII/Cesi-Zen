@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { createArticle as createArticleService } from '@/app/services/article';
+import { createArticle as createArticleService } from '@/app/services/articles';
 import { getAllCategories } from '@/app/services/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,13 +43,15 @@ const formSchema = z.object({
     message: 'Le contenu doit contenir au moins 10 caractères.',
   }),
   category: z.preprocess(
-    (val) => (val === "" ? undefined : Number(val)),
-    z.number({
-      required_error: 'Veuillez sélectionner une catégorie',
-      invalid_type_error: 'L\'ID de la catégorie doit être un nombre',
-    }).positive({
-      message: 'Veuillez sélectionner une catégorie valide',
-    })
+    (val) => (val === '' ? undefined : Number(val)),
+    z
+      .number({
+        required_error: 'Veuillez sélectionner une catégorie',
+        invalid_type_error: "L'ID de la catégorie doit être un nombre",
+      })
+      .positive({
+        message: 'Veuillez sélectionner une catégorie valide',
+      })
   ),
 });
 
@@ -118,7 +120,7 @@ export default function CreateArticlePage() {
 
     try {
       setIsSubmitting(true);
-      await createArticleService(data, session?.accessToken); // Appel de la fonction importée
+      await createArticleService(data, session?.accessToken);
       handleSuccess();
     } catch (error) {
       handleApiError(error);
@@ -180,7 +182,7 @@ export default function CreateArticlePage() {
 
               <FormField
                 control={form.control}
-                name="category"
+                name='category'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Catégorie</FormLabel>
@@ -190,17 +192,20 @@ export default function CreateArticlePage() {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Sélectionnez une catégorie" />
+                          <SelectValue placeholder='Sélectionnez une catégorie' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {isLoading ? (
-                          <div className="flex justify-center p-2">
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                          <div className='flex justify-center p-2'>
+                            <Loader2 className='h-4 w-4 animate-spin' />
                           </div>
                         ) : (
                           categories.map((category) => (
-                            <SelectItem key={category.id} value={String(category.id)}>
+                            <SelectItem
+                              key={category.id}
+                              value={String(category.id)}
+                            >
                               {category.label}
                             </SelectItem>
                           ))
