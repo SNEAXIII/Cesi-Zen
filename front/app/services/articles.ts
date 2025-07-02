@@ -80,6 +80,6 @@ export async function getAllArticles(categoryId?: number): Promise<ArticlesRespo
     const error = await response.json();
     throw new Error(error.message ?? 'Erreur lors de la récupération des articles');
   }
-
+  
   return await response.json();
 }

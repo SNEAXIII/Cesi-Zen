@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateInFrenchLong } from '@/app/lib/utils';
-import { Article, getArticle } from '@/app/services/article';
+import { Article, getArticle } from '@/app/services/articles';
 import RichTextContent from '@/app/ui/html-viewer/RichTextContent';
 import ArticleCreatorBadge from '@/app/ui/users/bubble';
 

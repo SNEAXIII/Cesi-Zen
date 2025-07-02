@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { getAllArticles, Article, deleteArticle } from '@/app/services/article';
+import { getAllArticles, Article, deleteArticle } from '@/app/services/articles';
 import { getAllCategories } from '@/app/services/category';
 import {
   Select,

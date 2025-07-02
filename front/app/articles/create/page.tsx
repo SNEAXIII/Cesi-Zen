@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { createArticle as createArticleService } from '@/app/services/article';
+import { createArticle as createArticleService } from '@/app/services/articles';
 import { getAllCategories } from '@/app/services/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
