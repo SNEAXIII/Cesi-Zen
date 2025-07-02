@@ -3,25 +3,25 @@ networks:
     driver: bridge
 
 services:
-  database:
-    image: 'mariadb'
+  mariadb:
+    image: mariadb
     ports:
-      - '3306:3306'
-    container_name: database
+      - 3306:3306
+    container_name: mariadb
     networks:
       - internal
-    env_file: "db.env"
+    env_file: db.env
     volumes:
-      - './data/db/:/var/lib/mysql'
-  phpmyadmin:
+      - ./data/db/:/var/lib/mysql
+  phmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
-      - '8080:80'
-    container_name: phpmyadmin
+      - 8080:80
+    container_name: myadmin
     networks:
       - internal
     environment:
-      - PMA_HOST=database
+      - PMA_HOST=mariadb
       - PMA_PORT=3306
     depends_on:
-      - database
+      - mariadb
