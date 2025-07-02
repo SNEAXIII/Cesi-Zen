@@ -1,29 +1,25 @@
 import { cn } from '@/app/lib/utils';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
-import { LightBulbIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { LightBulbIcon } from '@heroicons/react/24/outline';
 import { BookOpenIcon, ChartBarIcon } from 'lucide-react';
 
 const features = [
   {
     name: 'Ressources pratiques',
     description:
-      'Accédez à des fiches pratiques et des exercices concrets pour améliorer votre bien-être au quotidien.',
+      'Explorez des fiches concrètes et faciles à appliquer pour améliorer votre bien-être au quotidien.',
     icon: BookOpenIcon,
   },
   {
-    name: 'Échanges entre pairs',
+    name: 'Exercices de respiration',
     description:
-      "Partagez vos expériences et apprenez des autres membres de la communauté CESI.",
-    icon: UserGroupIcon,
-  },
-  {
-    name: 'Outils de suivi',
-    description: 'Suivez votre progression et identifiez les domaines à travailler avec nos tableaux de bord.',
+      'Pratiquez des techniques de respiration guidées pour réduire le stress et renforcer votre équilibre intérieur.',
     icon: ChartBarIcon,
   },
   {
-    name: 'Conseils experts',
-    description: 'Bénéficiez de conseils validés par des professionnels de la santé et du bien-être.',
+    name: 'Conseils d’experts',
+    description:
+      'Profitez de recommandations fiables, validées par des professionnels de la santé et du bien-être.',
     icon: LightBulbIcon,
   },
 ];
@@ -45,12 +41,12 @@ export default function FeaturesSection() {
         </div>
 
         {/* Features grid */}
-        <div className='grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4'>
+        <div className='flex flex-wrap justify-center gap-8'>
           {features.map((feature) => (
             <Card
               key={feature.name}
               className={cn(
-                'relative bg-gray-50 shadow-lg rounded-xl h-full transition-transform duration-300 hover:scale-105'
+                'relative bg-gray-50 shadow-lg rounded-xl h-full transition-transform duration-300 hover:scale-105 w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] max-w-md'
               )}
             >
               <CardHeader className='flex flex-col items-center text-center'>
@@ -64,8 +60,8 @@ export default function FeaturesSection() {
                   {feature.name}
                 </CardTitle>
               </CardHeader>
-              <CardContent className='mt-2'>
-                <p className='text-gray-500'>{feature.description}</p>
+              <CardContent className='mt-2 px-6 pb-6'>
+                <p className='text-gray-500 text-justify leading-relaxed'>{feature.description}</p>
               </CardContent>
             </Card>
           ))}
