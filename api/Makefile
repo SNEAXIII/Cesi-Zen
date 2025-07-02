@@ -14,6 +14,7 @@ help:
 	@echo "create-venv	-->	create the python virtual env"
 	@echo "dl_prod_reqs	-->	install prod requirements"
 	@echo "dl_dev_reqs	-->	install prod and dev requirements"
+	@echo "reset-db	-->	reset the database"
 
 create-venv:
 	python -m venv venv
@@ -35,6 +36,9 @@ migrate:
 
 fixtures:
 	$(RUN_MODULE) src.fixtures.sample_data
+
+reset-db:
+	$(RUN_MODULE) src.fixtures.reset_db
 
 cancel-last:
 	$(RUN_MODULE) alembic downgrade -1

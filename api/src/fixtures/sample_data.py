@@ -135,7 +135,7 @@ def load_sample_data():
             session.add(
                 User(
                     email="admin@email.com",
-                    login="amin",
+                    login="admin",
                     hashed_password=hash_with_low_security(PASSWORD),
                     role=Roles.ADMIN,
                 ),
@@ -145,33 +145,33 @@ def load_sample_data():
             for elem in all_users:
                 session.add(elem)
             session.commit()
-            print("✅ Users chargées avec succès !")
+            print("✅ Users loaded with success !")
             categories = create_sample_categories()
             for elem in categories:
                 session.add(elem)
             session.commit()
-            print("✅ Categories chargées avec succès !")
+            print("✅ Categories loaded with success !")
             articles = create_sample_articles(admins, categories, rolls=1)
             for elem in articles:
                 session.add(elem)
             session.commit()
-            print("✅ Articles chargées avec succès !")
+            print("✅ Articles loaded with success !")
             login_logs = create_sample_login_logs(all_users, rolls=4)
             exercises = create_sample_exercises()
             for elem in exercises:
                 session.add(elem)
             session.commit()
-            print("✅ Exercises chargées avec succès !")
+            print("✅ Exercises loaded with success !")
             for elem in login_logs:
                 session.add(elem)
             session.commit()
-            print("✅ Login logs chargées avec succès !")
+            print("✅ Login logs loaded with success !")
 
-        print("✅ Données de test chargées avec succès !")
+        print("✅ Sample data loaded with success !")
 
     except Exception as e:
         session.rollback()
-        print(f"❌ Erreur lors du chargement des données : {e}")
+        print(f"❌ Error loading sample data : {e}")
         raise
 
 
