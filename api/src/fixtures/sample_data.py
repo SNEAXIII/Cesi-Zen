@@ -1,6 +1,6 @@
 from datetime import datetime
 from itertools import product
-
+from random import randint
 from faker import Faker
 from sqlmodel import create_engine, Session
 from typing import List
@@ -15,7 +15,7 @@ engine = create_engine(
     # echo=True,
 )
 
-fake = Faker()
+fake = Faker(locale="en")
 
 
 class States(str, Enum):
@@ -29,9 +29,21 @@ NOW = datetime.now()
 
 
 def hash_with_low_security(password: str) -> str:
-    return crypt_context.hash(
-        password,
-    )
+    return crypt_context.hash(password)
+
+
+admin = User(
+    email="admin@email.com",
+    login="admin",
+    hashed_password=hash_with_low_security(PASSWORD),
+    role=Roles.ADMIN,
+)
+user = User(
+    email="user@email.com",
+    login="user",
+    hashed_password=hash_with_low_security(PASSWORD),
+    role=Roles.USER,
+)
 
 
 def create_sample_users(rolls: int) -> List[User]:
@@ -40,7 +52,8 @@ def create_sample_users(rolls: int) -> List[User]:
 
     users = []
     for role, state, index in product(roles, states, range(rolls)):
-        name = f"{role.value}_{state.value}_{index}"
+        id_bonus = f"{randint(0, 9999)}".zfill(4)
+        name = f"{(fake.first_name())}_{id_bonus}"
         email = f"{name}@gmail.com"
         password = hash_with_low_security(PASSWORD)
         user = User(
@@ -60,16 +73,17 @@ def create_sample_users(rolls: int) -> List[User]:
 
 
 def get_admins(users: List[User]) -> List[User]:
-    return [user for user in users if Roles.ADMIN.value in user.login]
+    return [_user for _user in users if _user.role == Roles.ADMIN.value]
 
 
 def create_sample_categories():
     return [
+        Category(label="Actualités"),
+        Category(label="Bien-être"),
+        Category(label="Conseils"),
         Category(label="Méditation"),
         Category(label="Respiration"),
-        Category(label="Bien-être"),
-        Category(label="Actualités"),
-        Category(label="Conseils"),
+        Category(label="Spiritualité"),
     ]
 
 
@@ -132,14 +146,9 @@ def create_sample_login_logs(users: List[User], rolls: int) -> List[LoginLog]:
 def load_sample_data():
     try:
         with Session(engine) as session:
-            session.add(
-                User(
-                    email="admin@email.com",
-                    login="admin",
-                    hashed_password=hash_with_low_security(PASSWORD),
-                    role=Roles.ADMIN,
-                ),
-            )
+            session.add(admin)
+            session.add(user)
+            print("🚀 Creating users")
             all_users = create_sample_users(rolls=5)
             admins = get_admins(all_users)
             for elem in all_users:
