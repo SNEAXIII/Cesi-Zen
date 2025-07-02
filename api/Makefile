@@ -6,6 +6,7 @@ endif
 RUN_MODULE := $(VENV_PYTHON) -m
 help:
 	@echo "run-dev	-->	run the server in dev mode with auto reload"
+	@echo "run-prod	-->	run the server in production mode"
 	@echo "create-mig	-->	create fresh new migration"
 	@echo "migrate	-->	execute pending migrations"
 	@echo "fixtures	-->	load all fixtures for one time"
@@ -27,6 +28,9 @@ dl_dev_reqs:
 
 run-dev:
 	$(RUN_MODULE) fastapi dev --reload
+
+run-prod:
+	$(RUN_MODULE) fastapi run
 
 create-mig:
 	$(RUN_MODULE) alembic revision --autogenerate -m "create my table"
