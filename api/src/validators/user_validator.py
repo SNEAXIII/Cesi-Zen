@@ -78,7 +78,6 @@ def verify_password_match(value: str, info: ValidationInfo) -> str:
 
 
 def verify_old_password_not_match(value: str, info: ValidationInfo) -> str:
-    print(info)
     if "password" in info.data and hmac.compare_digest(info.data["password"], value):
         raise RequestValidationError(errors=[OLD_PASSWORD_EQUAL_ERROR])
     return value
