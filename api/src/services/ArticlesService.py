@@ -1,7 +1,9 @@
 from typing import Optional, Tuple
 
-from fastapi.exceptions import HTTPException
+from fastapi import HTTPException
 from sqlmodel import select
+
+from src.Messages.article_messages import CATEGORY_NOT_FOUND, ARTICLE_NOT_FOUND
 from src.dto.dto_articles import (
     CreateArticle,
     GetAllArticleResponse,
@@ -26,7 +28,7 @@ class ArticleService:
             session, create_article.category
         )
         if not category:
-            raise HTTPException(status_code=400, detail="La catégorie n'existe pas")
+            raise HTTPException(status_code=404, detail=CATEGORY_NOT_FOUND)
         sanitized_content = await sanitize_content_async(create_article.content)
         new_article = Article(
             title=create_article.title,
@@ -43,7 +45,7 @@ class ArticleService:
     async def delete_article(cls, session: SessionDep, article_id: int) -> bool:
         article = await session.get(Article, article_id)
         if not article:
-            raise HTTPException(status_code=404, detail="Article introuvable")
+            raise HTTPException(status_code=404, detail=ARTICLE_NOT_FOUND)
         await session.delete(article)
         await session.commit()
         return True
