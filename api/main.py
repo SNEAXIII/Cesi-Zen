@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from icecream import ic
+from starlette.middleware.base import _StreamingResponse
 from src.controllers.admin_controller import admin_controller
 from src.controllers.articles_controller import article_controller
 from src.controllers.auth_controller import auth_controller
@@ -73,7 +74,7 @@ async def check_user_role(
     ic(f"Requested {method} {uri = }")
     # print(f"{body = }")
     start_time = perf_counter()
-    response = await next_function(request)
+    response: _StreamingResponse = await next_function(request)
     process_time = perf_counter() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
@@ -106,3 +107,6 @@ async def http_exception_handler(request: Request, exc):
     )
 
 
+@app.get("/")
+async def test():
+    return {"hello": "world"}
