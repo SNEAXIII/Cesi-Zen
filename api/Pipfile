@@ -18,6 +18,7 @@ bleach = "*"
 
 [dev-packages]
 pytest = "*"
+aiosqlite = "*"
 pytest-asyncio = "*"
 pytest-mock = "*"
 pytest-cov = "*"
