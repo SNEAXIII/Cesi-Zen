@@ -78,8 +78,6 @@ class ArticleService:
         sql = sql.order_by(Article.created_at.desc())
         result = await session.exec(sql)
         rows = result.all()
-        if not rows:
-            raise HTTPException(status_code=404, detail="Aucun article trouvé")
         mapped_articles = []
         for article, _, _ in rows:
             article_model = article.model_dump()

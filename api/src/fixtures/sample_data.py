@@ -10,7 +10,7 @@ from src.security.secrets import SECRET
 from src.services.PasswordService import crypt_context
 from src.models import Article, Category, User, LoginLog, ExerciseCoherenceCardiac
 
-engine = create_engine(
+sync_engine = create_engine(
     f"mysql+pymysql://{SECRET.MARIADB_USER}:{SECRET.MARIADB_PASSWORD}@{SECRET.MARIADB_HOST}/{SECRET.MARIADB_DATABASE}",
     # echo=True,
 )
@@ -145,7 +145,7 @@ def create_sample_login_logs(users: List[User], rolls: int) -> List[LoginLog]:
 
 def load_sample_data():
     try:
-        with Session(engine) as session:
+        with Session(sync_engine) as session:
             session.add(admin)
             session.add(user)
             print("🚀 Creating users")

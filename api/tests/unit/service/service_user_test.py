@@ -73,7 +73,7 @@ def get_user_by_email_mock(mocker, return_value: bool):
     )
 
 
-def get_user_by_login_mock(mocker, return_value: bool | User):
+def get_user_by_login_mock(mocker, return_value: bool):
     return mocker.patch.object(
         UserService,
         "get_user_by_login",
