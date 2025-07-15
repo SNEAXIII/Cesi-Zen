@@ -31,10 +31,9 @@ async def get_test_session() -> AsyncSession:
         yield session
 
 
-@pytest.fixture(autouse=True)
 def reset_test_db() -> None:
     sep_lines = "_" * 50
-    if os.path.isfile(DB_NAME):
+    if os.path.exists(DB_NAME):
         print(f"Reset db...\n{sep_lines}")
         os.remove(DB_NAME)
         print(f"Done!\n{sep_lines}")

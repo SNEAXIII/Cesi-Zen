@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from time import sleep
 from typing import Optional
 
 import pytest
@@ -57,14 +58,16 @@ def get_basic_article(id: Optional[int] = None) -> Article:
 async def push_one_article_bundle():
     user = get_basic_user()
     category = get_basic_category()
-    article = get_basic_article()
+    articles = [get_basic_article()]
     await load_objects([user])
     await load_objects([category])
-    await load_objects([article])
+    await load_objects(articles)
+
+
 async def push_ten_articles_bundle():
     user = get_basic_user()
     category = get_basic_category()
-    articles = [get_basic_article(id+1) for id in range(10)]
+    articles = [get_basic_article(id + 1) for id in range(10)]
     await load_objects([user])
     await load_objects([category])
     await load_objects(articles)
@@ -86,42 +89,37 @@ get_all_params = {
                 )
             ],
         ),
-    },"ten": {
+    },
+    "ten": {
         "loader": push_ten_articles_bundle,
         "expected": GetAllArticleResponse(
             count=10,
             articles=[
                 GetArticleResponseMin(
-                    id=1,
-                    title=TITLE,
-                    creator=LOGIN,
+                    id=id + 1,
+                    title=f"{TITLE}{id + 1}",
+                    creator=f"{LOGIN}",
                     id_category=1,
                     category=LABEL,
                     created_at=CREATED_AT.isoformat(),
                 )
+                for id in range(10)
             ],
         ),
-    }
+    },
 }
 
 
 @pytest.mark.asyncio
-async def test_get_all():
-    await push_one_article_bundle()
-    expected_list_article = [
-        GetArticleResponseMin(
-            id=1,
-            title=TITLE,
-            creator=LOGIN,
-            id_category=1,
-            category=LABEL,
-            created_at=CREATED_AT.isoformat(),
-        )
-    ]
-    expected = GetAllArticleResponse(
-        count=len(expected_list_article), articles=expected_list_article
-    )
+@pytest.mark.parametrize(
+    "values",
+    get_all_params.values(),
+    ids=get_all_params.keys(),
+)
+async def test_get_all(values):
+    reset_test_db()
+    await values["loader"]()
     async with get_test_client() as client:
         response = await client.get("/articles/")
     assert response.status_code == 200
-    assert response.json() == expected.model_dump(mode="json")
+    assert response.json() == values["expected"].model_dump(mode="json")
