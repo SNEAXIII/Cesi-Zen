@@ -48,4 +48,4 @@ cancel-last:
 	$(RUN_MODULE) alembic downgrade -1
 
 test-cov:
-	$(RUN_MODULE) pytest test --cov --cov-report term-missing -v
+	$(RUN_MODULE) pytest tests --cov --cov-report term-missing -v

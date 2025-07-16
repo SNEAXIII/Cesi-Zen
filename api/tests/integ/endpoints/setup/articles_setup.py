@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-from faker import Faker
 from src.models import Article, Category, User, LoginLog, ExerciseCoherenceCardiac  # noqa: F401
 from tests.utils_db import (
     load_objects,
@@ -9,7 +8,6 @@ from tests.utils_db import (
 )
 
 
-fake = Faker(locale="en")
 LOGIN = "login"
 EMAIL = "email"
 HASHED_PASSWORD = "hashed_password"

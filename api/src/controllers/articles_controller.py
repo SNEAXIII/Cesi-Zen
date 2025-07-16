@@ -17,8 +17,7 @@ async def get_articles(
     session: SessionDep,
     category_id: Optional[int] = None,
 ):
-    result = await ArticleService.get_all(session, category_id)
-    return result
+    return await ArticleService.get_all(session, category_id)
 
 
 @article_controller.get("/{article_id}", response_model=GetArticleResponseFull)
@@ -26,5 +25,4 @@ async def get_article(
     article_id: int,
     session: SessionDep,
 ):
-    article = await ArticleService.get_article(session, article_id)
-    return article
+    return await ArticleService.get_article(session, article_id)
