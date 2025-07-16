@@ -1,79 +1,30 @@
-import uuid
-from datetime import datetime
-from time import sleep
-from typing import Optional
-
 import pytest
 
 from src.dto.dto_articles import GetArticleResponseMin, GetAllArticleResponse
 from src.models import Article, Category, User, LoginLog, ExerciseCoherenceCardiac  # noqa: F401
-from faker import Faker
 
 
 from main import app
 from src.utils.db import get_session
+from tests.integ.endpoints.setup.articles_setup import do_nothing, push_one_article_bundle, TITLE, LOGIN, LABEL, \
+    CREATED_AT, push_ten_articles_bundle, push_ten_articles_with_2_categories_bundle
 from tests.utils_db import (
     get_test_session,
-    load_objects,
     reset_test_db,  # noqa: F401
 )
 from tests.utils_request import get_test_client
 
 app.dependency_overrides[get_session] = get_test_session
-fake = Faker(locale="en")
-LOGIN = "login"
-EMAIL = "email"
-HASHED_PASSWORD = "hashed_password"
-LABEL = "label"
-CREATED_AT = datetime.now()
-TITLE = "title"
-CONTENT = "content"
-USER_ID = uuid.uuid4()
-
-
-def get_basic_user(id: Optional[str] = None) -> User:
-    return User(
-        id=id if id else USER_ID,
-        login=LOGIN,
-        email=EMAIL,
-        hashed_password=HASHED_PASSWORD,
-    )
-
-
-def get_basic_category(id: Optional[int] = None) -> Category:
-    return Category(id=id, label=f"{LABEL}{id if id else ''}")
-
-
-def get_basic_article(id: Optional[int] = None) -> Article:
-    return Article(
-        id=id,
-        title=f"{TITLE}{id if id else ''}",
-        content=f"{CONTENT}{id if id else ''}",
-        created_at=CREATED_AT,
-        id_user=USER_ID,
-        id_category=1,
-    )
-
-
-async def push_one_article_bundle():
-    user = get_basic_user()
-    category = get_basic_category()
-    articles = [get_basic_article()]
-    await load_objects([user])
-    await load_objects([category])
-    await load_objects(articles)
-
-
-async def push_ten_articles_bundle():
-    user = get_basic_user()
-    category = get_basic_category()
-    articles = [get_basic_article(id + 1) for id in range(10)]
-    await load_objects([user])
-    await load_objects([category])
-    await load_objects(articles)
 
 
 get_all_params = {
+    "zero": {
+        "loader": do_nothing,
+        "expected": GetAllArticleResponse(
+            count=0,
+            articles=[],
+        ),
+    },
     "one": {
         "loader": push_one_article_bundle,
         "expected": GetAllArticleResponse(
@@ -107,6 +58,24 @@ get_all_params = {
             ],
         ),
     },
+    "five_filtered_by_category": {
+        "route": "/articles/?category_id=1",
+        "loader": push_ten_articles_with_2_categories_bundle,
+        "expected": GetAllArticleResponse(
+            count=5,
+            articles=[
+                GetArticleResponseMin(
+                    id=id + 1,
+                    title=f"{TITLE}{id + 1}",
+                    creator=f"{LOGIN}",
+                    id_category=1,
+                    category=f"{LABEL}1",
+                    created_at=CREATED_AT.isoformat(),
+                )
+                for id in range(1, 10 + 1, 2)
+            ],
+        ),
+    },
 }
 
 
@@ -114,12 +83,13 @@ get_all_params = {
 @pytest.mark.parametrize(
     "values",
     get_all_params.values(),
-    ids=get_all_params.keys(),
+    ids=[f"case_{k}" for k in get_all_params.keys()],
 )
-async def test_get_all(values):
+async def test_get_all(values: dict):
     reset_test_db()
+    route = values.get("route", "/articles/")
     await values["loader"]()
     async with get_test_client() as client:
-        response = await client.get("/articles/")
+        response = await client.get(route)
     assert response.status_code == 200
     assert response.json() == values["expected"].model_dump(mode="json")
