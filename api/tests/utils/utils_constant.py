@@ -1,6 +1,8 @@
 import uuid
 from datetime import datetime
 
+from src.services.PasswordService import crypt_context
+
 # User
 USER_ID = uuid.uuid4()
 EMAIL = "user@gmail.com"
@@ -10,7 +12,7 @@ WRONG_PASSWORD = "WrongPassword"
 # Password
 PASSWORD = "ComplexPassword1!"
 PLAIN_PASSWORD = "password"
-HASHED_PASSWORD = "hashed_password"
+HASHED_PASSWORD = crypt_context.hash(PLAIN_PASSWORD, rounds=8)
 # TODO put an immortal token here
 TOKEN = "TOKEN"
 

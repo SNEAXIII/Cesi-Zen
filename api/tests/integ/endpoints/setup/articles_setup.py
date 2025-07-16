@@ -1,9 +1,6 @@
 from typing import Optional
 from src.models import Article, Category, User, LoginLog, ExerciseCoherenceCardiac  # noqa: F401
-from tests.utils.utils_db import (
-    load_objects,
-    # noqa: F401
-)
+from tests.utils.utils_db import load_objects
 
 
 from tests.utils.utils_constant import (
