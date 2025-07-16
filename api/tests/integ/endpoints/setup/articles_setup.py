@@ -1,5 +1,3 @@
-import uuid
-from datetime import datetime
 from typing import Optional
 from src.models import Article, Category, User, LoginLog, ExerciseCoherenceCardiac  # noqa: F401
 from tests.utils.utils_db import (
@@ -8,14 +6,16 @@ from tests.utils.utils_db import (
 )
 
 
-LOGIN = "login"
-EMAIL = "email"
-HASHED_PASSWORD = "hashed_password"
-LABEL = "label"
-CREATED_AT = datetime.now()
-TITLE = "title"
-CONTENT = "content"
-USER_ID = uuid.uuid4()
+from tests.utils.utils_constant import (
+    HASHED_PASSWORD,
+    CONTENT,
+    LABEL,
+    LOGIN,
+    USER_ID,
+    TITLE,
+    CREATED_AT,
+    EMAIL,
+)
 
 
 def get_basic_user(id: Optional[str] = None) -> User:

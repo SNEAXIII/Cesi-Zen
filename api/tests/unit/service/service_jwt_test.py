@@ -18,12 +18,7 @@ from src.enums.Roles import Roles
 from src.models import User
 from src.security.secrets import SECRET
 from src.services.JWTService import JWTService
-
-ID = "UUIDV4"
-LOGIN = "User"
-TOKEN = "token"
-HASHED_PASSWORD = "hash"
-EMAIL = "user@gmail.com"
+from tests.utils.utils_constant import TOKEN, HASHED_PASSWORD, LOGIN, EMAIL
 
 
 def get_user():

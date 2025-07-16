@@ -16,12 +16,14 @@ from src.services.JWTService import JWTService
 from src.services.UserService import UserService
 from src.services.PasswordService import PasswordService
 
-PLAIN_PASSWORD = "password"
-HASHED_PASSWORD = "hash"
-LOGIN = "User"
-EMAIL = "user@gmail.com"
-TOKEN = "token"
-UNKNOWN_ROLE = "unknown"
+from tests.utils.utils_constant import (
+    UNKNOWN_ROLE,
+    TOKEN,
+    HASHED_PASSWORD,
+    PLAIN_PASSWORD,
+    LOGIN,
+    EMAIL,
+)
 
 
 def get_user_mock(mocker, return_value: Optional[User]):

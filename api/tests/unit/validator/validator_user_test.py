@@ -26,11 +26,7 @@ from src.validators.user_validator import (
     MIN_LOGIN_LENGHT,
     MAX_LOGIN_LENGHT,
 )
-
-LOGIN = "Login"
-EMAIL = "Email"
-PASSWORD = "Password"
-WRONG_PASSWORD = "Wrong Password"
+from tests.utils.utils_constant import PASSWORD, WRONG_PASSWORD, LOGIN, EMAIL
 
 # For passwords tests
 password_wrong_size = PASSWORD_WRONG_SIZE % (MIN_PASSWORD_LENGHT, MAX_PASSWORD_LENGHT)

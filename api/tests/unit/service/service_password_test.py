@@ -3,9 +3,7 @@ from passlib.context import CryptContext
 
 from src.services.PasswordService import PasswordService
 from src.security.secrets import SECRET
-
-PLAIN_PASSWORD = "password"
-HASHED_PASSWORD = "hash"
+from tests.utils.utils_constant import HASHED_PASSWORD, PLAIN_PASSWORD
 
 
 def get_verify_mock(mocker):

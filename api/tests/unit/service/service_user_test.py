@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 from unittest.mock import AsyncMock
 
@@ -29,16 +28,17 @@ from src.models import User
 from src.services.PasswordService import PasswordService
 from src.services.UserService import UserService
 
-ID: uuid.UUID = uuid.UUID("3fa85f64-5717-4562-b3fc-2c963f66afa6")
-PLAIN_PASSWORD = "password"
-HASHED_PASSWORD = "hash"
-LOGIN = "User"
-EMAIL = "user@gmail.com"
-PASSWORD = "ComplexPassword1!"
-ROLE = None
-STATUS = None
-PAGE = 1
-SIZE = 10
+from tests.utils.utils_constant import (
+    PASSWORD,
+    HASHED_PASSWORD,
+    LOGIN,
+    ROLE,
+    USER_ID,
+    EMAIL,
+    SIZE,
+    STATUS,
+    PAGE,
+)
 
 
 def get_users_paginated_mock(mocker, return_value: list[User]):
@@ -174,10 +174,10 @@ async def test_get_user(mocker):
     mock_session = session_mock(mocker)
 
     # Act
-    await UserService.get_user(mock_session, ID)
+    await UserService.get_user(mock_session, USER_ID)
 
     # Assert
-    mock_session.get.assert_called_once_with(User, ID)
+    mock_session.get.assert_called_once_with(User, USER_ID)
 
 
 @pytest.mark.asyncio
@@ -230,7 +230,7 @@ async def test_get_users_with_pagination(mocker):
     # Arrange
     total_user_result = 45
     user_list_for_mock = [
-        User(id=ID, login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD)
+        User(id=USER_ID, login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD)
         for _ in range(10)
     ]
     expected_list_result = [
@@ -323,12 +323,12 @@ async def test_patch_disable_user_success(mocker):
     mock_get_user = get_user_mock(mocker, fake_user)
 
     # Act
-    result = await UserService.admin_patch_disable_user(mock_session, ID)
+    result = await UserService.admin_patch_disable_user(mock_session, USER_ID)
 
     # Assert
     assert result is True
     assert fake_user.disabled_at == datetime.now()
-    mock_get_user.assert_called_once_with(mock_session, ID)
+    mock_get_user.assert_called_once_with(mock_session, USER_ID)
     mock_session.commit.assert_called_once_with()
 
 
@@ -350,11 +350,11 @@ async def test_patch_disable_user_error(mocker, fake_user, expected_error):
 
     # Act
     with pytest.raises(UserAdminError) as error:
-        await UserService.admin_patch_disable_user(mock_session, ID)
+        await UserService.admin_patch_disable_user(mock_session, USER_ID)
 
     # Assert
     assert error.value.detail == str(expected_error)
-    mock_get_user.assert_called_once_with(mock_session, ID)
+    mock_get_user.assert_called_once_with(mock_session, USER_ID)
     mock_session.commit.assert_not_called()
 
 
@@ -364,7 +364,7 @@ async def test_self_delete_success(mocker):
     # Arrange
     current_time = datetime.now()
     current_user = User(
-        id=ID, login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD
+        id=USER_ID, login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD
     )
     mock_session = session_mock(mocker)
     mock_verify = verify_password_mock(mocker, True)
@@ -384,7 +384,7 @@ async def test_self_delete_wrong_credentials(mocker):
     # Arrange
     deleted_at = datetime(2023, 1, 1, 12, 0, 0)
     current_user = User(
-        id=ID,
+        id=USER_ID,
         login=LOGIN,
         email=EMAIL,
         hashed_password=HASHED_PASSWORD,
@@ -407,7 +407,7 @@ async def test_self_delete_already_deleted(mocker):
     # Arrange
     deleted_at = datetime(2023, 1, 1, 12, 0, 0)
     current_user = User(
-        id=ID,
+        id=USER_ID,
         login=LOGIN,
         email=EMAIL,
         hashed_password=HASHED_PASSWORD,
@@ -435,12 +435,12 @@ async def test_patch_enable_user_success(mocker):
     mock_get_user = get_user_mock(mocker, fake_user)
 
     # Act
-    result = await UserService.admin_patch_enable_user(mock_session, ID)
+    result = await UserService.admin_patch_enable_user(mock_session, USER_ID)
 
     # Assert
     assert result is True
     assert fake_user.disabled_at is None
-    mock_get_user.assert_called_once_with(mock_session, ID)
+    mock_get_user.assert_called_once_with(mock_session, USER_ID)
     mock_session.commit.assert_called_once_with()
 
 
@@ -461,11 +461,11 @@ async def test_patch_enable_user_error(mocker, fake_user, expected_error):
 
     # Act
     with pytest.raises(UserAdminError) as error:
-        await UserService.admin_patch_enable_user(mock_session, ID)
+        await UserService.admin_patch_enable_user(mock_session, USER_ID)
 
     # Assert
     assert error.value.detail == str(expected_error)
-    mock_get_user.assert_called_once_with(mock_session, ID)
+    mock_get_user.assert_called_once_with(mock_session, USER_ID)
     mock_session.commit.assert_not_called()
 
 
@@ -478,12 +478,12 @@ async def test_delete_user_success(mocker):
     mock_get_user = get_user_mock(mocker, fake_user)
 
     # Act
-    result = await UserService.admin_delete_user(mock_session, ID)
+    result = await UserService.admin_delete_user(mock_session, USER_ID)
 
     # Assert
     assert result is True
     assert fake_user.deleted_at == datetime.now()
-    mock_get_user.assert_called_once_with(mock_session, ID)
+    mock_get_user.assert_called_once_with(mock_session, USER_ID)
     mock_session.commit.assert_called_once_with()
 
 
@@ -504,9 +504,9 @@ async def test_delete_user_error(mocker, fake_user, expected_error):
 
     # Act
     with pytest.raises(UserAdminError) as error:
-        await UserService.admin_delete_user(mock_session, ID)
+        await UserService.admin_delete_user(mock_session, USER_ID)
 
     # Assert
     assert error.value.detail == str(expected_error)
-    mock_get_user.assert_called_once_with(mock_session, ID)
+    mock_get_user.assert_called_once_with(mock_session, USER_ID)
     mock_session.commit.assert_not_called()
