@@ -2,9 +2,9 @@ import uuid
 from datetime import datetime
 from typing import Optional
 from src.models import Article, Category, User, LoginLog, ExerciseCoherenceCardiac  # noqa: F401
-from tests.utils_db import (
+from tests.utils.utils_db import (
     load_objects,
-    reset_test_db,  # noqa: F401
+    # noqa: F401
 )
 
 

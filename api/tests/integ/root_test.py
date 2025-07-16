@@ -1,7 +1,6 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
 from main import app
-from tests import utils_db  # noqa: F401
 
 
 @pytest.mark.asyncio

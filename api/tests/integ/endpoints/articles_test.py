@@ -19,11 +19,11 @@ from tests.integ.endpoints.setup.articles_setup import (
     CREATED_AT,
     CONTENT,
 )
-from tests.utils_db import (
+from tests.utils.utils_db import (
     get_test_session,
     reset_test_db,  # noqa: F401
 )
-from tests.utils_request import get_test_client
+from tests.utils.utils_request import get_test_client
 
 app.dependency_overrides[get_session] = get_test_session
 
