@@ -1,4 +1,9 @@
 [run]
 omit =
     */__init__.py
-    test/*
+    tests/*
+
+[report]
+exclude_also =
+    if TYPE_CHECKING:
+    def custom_openapi():

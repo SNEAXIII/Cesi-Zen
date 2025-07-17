@@ -21,10 +21,6 @@ _cleaner = Cleaner(
         "code",
         "pre",
     },
-    attributes={
-        "a": ["href", "title", "target"],
-        "span": ["style"],
-    },
     strip=True,
 )
 

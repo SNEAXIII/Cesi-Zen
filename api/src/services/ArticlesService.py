@@ -58,7 +58,7 @@ class ArticleService:
             .join(Category)
             .where(Article.id == article_id)
         )
-        result = await session.execute(sql)
+        result = await session.exec(sql)
         tuple_result: Optional[Tuple[Article, User, Category]] = result.first()
         if not tuple_result:
             raise HTTPException(status_code=404, detail="Article introuvable")
