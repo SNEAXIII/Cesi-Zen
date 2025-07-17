@@ -13,7 +13,9 @@ from src.models import User
 from src.services.AuthService import AuthService
 from tests.unit.service.mocks.jwt_mock import decode_service_mock
 from tests.unit.service.mocks.password_mock import verify_password_mock
+from tests.unit.service.mocks.session_mock import session_mock
 from tests.unit.service.mocks.users_mock import get_user_with_validity_check_mock
+from tests.unit.service.service_jwt_test import get_user
 
 from tests.utils.utils_constant import (
     UNKNOWN_ROLE,
@@ -23,14 +25,6 @@ from tests.utils.utils_constant import (
     LOGIN,
     EMAIL,
 )
-
-
-def session_mock(mocker):
-    return mocker.AsyncMock()
-
-
-def get_user():
-    return User(login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD)
 
 
 @pytest.mark.asyncio

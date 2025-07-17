@@ -23,7 +23,7 @@ from tests.utils.utils_db import (
     get_test_session,
     reset_test_db,  # noqa: F401
 )
-from tests.utils.utils_request import get_test_client
+from tests.utils.utils_client import get_test_client
 
 app.dependency_overrides[get_session] = get_test_session
 
