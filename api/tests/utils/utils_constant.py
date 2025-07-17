@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 
-from src.services.PasswordService import crypt_context
 
 # User
 USER_ID = uuid.uuid4()
@@ -12,9 +11,10 @@ WRONG_PASSWORD = "WrongPassword"
 # Password
 PASSWORD = "ComplexPassword1!"
 PLAIN_PASSWORD = "password"
-HASHED_PASSWORD = crypt_context.hash(PLAIN_PASSWORD, rounds=8)
+HASHED_PASSWORD = "$2b$04$c5i699sDUICKICmOARITy.wCpNpnp8U/hXlqWtHmvgZBtXc4iUF0y"
+
 # TODO put an immortal token here
-TOKEN = "TOKEN"
+FAKE_TOKEN = "FAKE_TOKEN"  # For unit test purpose
 
 # Article
 LABEL = "label"

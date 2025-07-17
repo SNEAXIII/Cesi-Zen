@@ -21,7 +21,7 @@ from tests.unit.service.mocks.jwt_mock import (
     encode_mock,
     create_token_mock,
 )
-from tests.utils.utils_constant import TOKEN, HASHED_PASSWORD, LOGIN, EMAIL
+from tests.utils.utils_constant import FAKE_TOKEN, HASHED_PASSWORD, LOGIN, EMAIL
 
 
 def get_user():
@@ -35,12 +35,12 @@ def test_decode_jwt_success(mocker, role):
     mock_decode = decode_module_mock(mocker, data)
 
     # Act
-    result = JWTService.decode_jwt(TOKEN)
+    result = JWTService.decode_jwt(FAKE_TOKEN)
 
     # Assert
     assert result is data
     mock_decode.assert_called_once_with(
-        TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
+        FAKE_TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
     )
 
 
@@ -51,11 +51,11 @@ def test_decode_jwt_token_expired(mocker):
 
     # Act
     with pytest.raises(JwtError) as error:
-        JWTService.decode_jwt(TOKEN)
+        JWTService.decode_jwt(FAKE_TOKEN)
 
     # Assert
     mock_decode.assert_called_once_with(
-        TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
+        FAKE_TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
     )
     assert error.value.detail == str(EXPIRED_EXCEPTION)
 
@@ -67,11 +67,11 @@ def test_decode_jwt_token_no_user(mocker):
 
     # Act
     with pytest.raises(JwtError) as error:
-        JWTService.decode_jwt(TOKEN)
+        JWTService.decode_jwt(FAKE_TOKEN)
 
     # Assert
     mock_decode.assert_called_once_with(
-        TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
+        FAKE_TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
     )
     assert error.value.detail == str(CANT_FIND_USER_TOKEN_EXCEPTION)
 
@@ -90,11 +90,11 @@ def test_decode_jwt_token_wrong_role(mocker, data):
 
     # Act
     with pytest.raises(JwtError) as error:
-        JWTService.decode_jwt(TOKEN)
+        JWTService.decode_jwt(FAKE_TOKEN)
 
     # Assert
     mock_decode.assert_called_once_with(
-        TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
+        FAKE_TOKEN, SECRET.SECRET_KEY, algorithms=[SECRET.ALGORITHM]
     )
     assert error.value.detail == str(INVALID_ROLE_EXCEPTION)
 

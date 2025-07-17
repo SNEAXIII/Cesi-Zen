@@ -19,7 +19,7 @@ from tests.unit.service.service_jwt_test import get_user
 
 from tests.utils.utils_constant import (
     UNKNOWN_ROLE,
-    TOKEN,
+    FAKE_TOKEN,
     HASHED_PASSWORD,
     PLAIN_PASSWORD,
     LOGIN,
@@ -100,10 +100,10 @@ async def test_get_current_user_in_jwt_success(mocker):
     mock_session = session_mock(mocker)
 
     # Act
-    result = await AuthService.get_current_user_in_jwt(mock_session, TOKEN)
+    result = await AuthService.get_current_user_in_jwt(mock_session, FAKE_TOKEN)
 
     # Assert
-    mock_decode.assert_called_once_with(TOKEN)
+    mock_decode.assert_called_once_with(FAKE_TOKEN)
     mock_get_user.assert_called_once_with(mock_session, LOGIN)
     assert result == user
 
@@ -116,10 +116,10 @@ async def test_get_current_user_in_jwt_user_not_found(mocker):
     mock_session = session_mock(mocker)
 
     # Act
-    result = await AuthService.get_current_user_in_jwt(mock_session, TOKEN)
+    result = await AuthService.get_current_user_in_jwt(mock_session, FAKE_TOKEN)
 
     # Assert
-    mock_decode.assert_called_once_with(TOKEN)
+    mock_decode.assert_called_once_with(FAKE_TOKEN)
     mock_get_user.assert_called_once_with(mock_session, LOGIN)
     assert result is None
 
@@ -134,10 +134,10 @@ async def test_is_logged_as_user_success(mocker, role):
     mock_decode = decode_service_mock(mocker, {"role": role})
 
     # Act
-    result = await AuthService.is_logged_as_user(TOKEN)
+    result = await AuthService.is_logged_as_user(FAKE_TOKEN)
 
     # Assert
-    mock_decode.assert_called_once_with(TOKEN)
+    mock_decode.assert_called_once_with(FAKE_TOKEN)
     assert result is True
 
 
@@ -147,10 +147,10 @@ async def test_is_logged_as_admin_success(mocker):
     mock_decode = decode_service_mock(mocker, {"role": Roles.ADMIN})
 
     # Act
-    result = await AuthService.is_logged_as_admin(TOKEN)
+    result = await AuthService.is_logged_as_admin(FAKE_TOKEN)
 
     # Assert
-    mock_decode.assert_called_once_with(TOKEN)
+    mock_decode.assert_called_once_with(FAKE_TOKEN)
     assert result is True
 
 
@@ -170,8 +170,8 @@ async def test_is_logged_as_error(mocker, method_to_test, role):
 
     # Act
     with pytest.raises(JwtError) as error:
-        await method_to_test(TOKEN)
+        await method_to_test(FAKE_TOKEN)
 
     # Assert
-    mock_decode.assert_called_once_with(TOKEN)
+    mock_decode.assert_called_once_with(FAKE_TOKEN)
     assert error.value.detail == str(INSUFFISANT_ROLE_EXCEPTION)
