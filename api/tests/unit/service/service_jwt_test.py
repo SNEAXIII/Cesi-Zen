@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
-import jwt
 import pytest
 from freezegun import freeze_time
 from jwt import ExpiredSignatureError
@@ -18,6 +16,11 @@ from src.enums.Roles import Roles
 from src.models import User
 from src.security.secrets import SECRET
 from src.services.JWTService import JWTService
+from tests.unit.service.mocks.jwt_mock import (
+    decode_module_mock,
+    encode_mock,
+    create_token_mock,
+)
 from tests.utils.utils_constant import TOKEN, HASHED_PASSWORD, LOGIN, EMAIL
 
 
@@ -25,33 +28,11 @@ def get_user():
     return User(login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD)
 
 
-def decode_mock(mocker, return_value: Optional[dict[str, str]]):
-    return mocker.patch.object(
-        jwt,
-        "decode",
-        return_value=return_value,
-    )
-
-
-def encode_mock(mocker):
-    return mocker.patch.object(
-        jwt,
-        "encode",
-    )
-
-
-def create_token_mock(mocker):
-    return mocker.patch.object(
-        JWTService,
-        "create_token",
-    )
-
-
 @pytest.mark.parametrize("role", Roles.__members__.values())
 def test_decode_jwt_success(mocker, role):
     # Arrange
     data = {"sub": LOGIN, "role": role}
-    mock_decode = decode_mock(mocker, data)
+    mock_decode = decode_module_mock(mocker, data)
 
     # Act
     result = JWTService.decode_jwt(TOKEN)
@@ -65,7 +46,7 @@ def test_decode_jwt_success(mocker, role):
 
 def test_decode_jwt_token_expired(mocker):
     # Arrange
-    mock_decode = decode_mock(mocker, None)
+    mock_decode = decode_module_mock(mocker, None)
     mock_decode.side_effect = ExpiredSignatureError
 
     # Act
@@ -82,7 +63,7 @@ def test_decode_jwt_token_expired(mocker):
 def test_decode_jwt_token_no_user(mocker):
     # Arrange
     data = {"role": Roles.USER}
-    mock_decode = decode_mock(mocker, data)
+    mock_decode = decode_module_mock(mocker, data)
 
     # Act
     with pytest.raises(JwtError) as error:
@@ -105,7 +86,7 @@ def test_decode_jwt_token_no_user(mocker):
 )
 def test_decode_jwt_token_wrong_role(mocker, data):
     # Arrange
-    mock_decode = decode_mock(mocker, data)
+    mock_decode = decode_module_mock(mocker, data)
 
     # Act
     with pytest.raises(JwtError) as error:

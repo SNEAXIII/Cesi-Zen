@@ -1,5 +1,4 @@
 from datetime import datetime
-from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.exceptions import RequestValidationError
@@ -25,8 +24,19 @@ from src.Messages.validators_messages import (
     LOGIN_ALREADY_EXISTS_ERROR,
 )
 from src.models import User
-from src.services.PasswordService import PasswordService
 from src.services.UserService import UserService
+from tests.unit.service.mocks.password_mock import (
+    get_string_hash_mock,
+    verify_password_mock,
+)
+from tests.unit.service.mocks.session_mock import session_mock
+from tests.unit.service.mocks.users_mock import (
+    get_user_by_email_mock,
+    get_user_by_login_mock,
+    get_users_paginated_mock,
+    get_total_users_mock,
+    get_user_mock,
+)
 
 from tests.utils.utils_constant import (
     PASSWORD,
@@ -39,66 +49,6 @@ from tests.utils.utils_constant import (
     STATUS,
     PAGE,
 )
-
-
-def get_users_paginated_mock(mocker, return_value: list[User]):
-    return mocker.patch.object(
-        UserService,
-        "get_users_paginated",
-        return_value=return_value,
-    )
-
-
-def get_total_users_mock(mocker, return_value: int):
-    return mocker.patch.object(
-        UserService,
-        "get_total_users",
-        return_value=return_value,
-    )
-
-
-def get_user_mock(mocker, return_value: User):
-    return mocker.patch.object(
-        UserService,
-        "get_user",
-        return_value=return_value,
-    )
-
-
-def get_user_by_email_mock(mocker, return_value: bool):
-    return mocker.patch.object(
-        UserService,
-        "get_user_by_email",
-        return_value=return_value,
-    )
-
-
-def get_user_by_login_mock(mocker, return_value: bool):
-    return mocker.patch.object(
-        UserService,
-        "get_user_by_login",
-        return_value=return_value,
-    )
-
-
-def verify_password_mock(mocker, return_value: bool):
-    return mocker.patch.object(
-        PasswordService,
-        "verify_password",
-        return_value=return_value,
-    )
-
-
-def get_string_hash_mock(mocker, return_value: str):
-    return mocker.patch.object(
-        PasswordService,
-        "get_string_hash",
-        return_value=return_value,
-    )
-
-
-def session_mock(mocker):
-    return mocker.AsyncMock()
 
 
 def get_create_user():
@@ -183,46 +133,40 @@ async def test_get_user(mocker):
 @pytest.mark.asyncio
 async def test_get_user_by_login(mocker):
     # Arrange
-    mock_exec_result = AsyncMock(return_value=None)
     mock_session = session_mock(mocker)
-    mock_session.exec.return_value = mock_exec_result
 
     # Act
     await UserService.get_user_by_login(mock_session, LOGIN)
 
     # Assert
     mock_session.exec.assert_called_once()
-    mock_exec_result.first.assert_called_once_with()
+    mock_session.exec.return_value.first.assert_called_once_with()
 
 
 @pytest.mark.asyncio
 async def test_get_users_paginated(mocker):
     # Arrange
-    mock_exec_result = AsyncMock(return_value=None)
     mock_session = session_mock(mocker)
-    mock_session.exec.return_value = mock_exec_result
 
     # Act
     await UserService.get_users_paginated(mock_session, PAGE, SIZE, STATUS, ROLE)
 
     # Assert
     mock_session.exec.assert_called_once()
-    mock_exec_result.all.assert_called_once_with()
+    mock_session.exec.return_value.all.assert_called_once_with()
 
 
 @pytest.mark.asyncio
 async def test_get_total_users(mocker):
     # Arrange
-    mock_exec_result = AsyncMock(return_value=None)
     mock_session = session_mock(mocker)
-    mock_session.exec.return_value = mock_exec_result
 
     # Act
     await UserService.get_total_users(mock_session, STATUS, ROLE)
 
     # Assert
     mock_session.exec.assert_called_once()
-    mock_exec_result.one.assert_called_once_with()
+    mock_session.exec.return_value.one.assert_called_once_with()
 
 
 @pytest.mark.asyncio
@@ -237,9 +181,7 @@ async def test_get_users_with_pagination(mocker):
         UserAdminViewSingleUser.model_validate(user.model_dump())
         for user in user_list_for_mock
     ]
-    mock_exec_result = AsyncMock(return_value=None)
     mock_session = session_mock(mocker)
-    mock_session.exec.return_value = mock_exec_result
     mock_get_users_paginated = get_users_paginated_mock(mocker, user_list_for_mock)
     mock_get_total_users = get_total_users_mock(mocker, return_value=total_user_result)
     # Act
@@ -259,16 +201,14 @@ async def test_get_users_with_pagination(mocker):
 @pytest.mark.asyncio
 async def test_get_user_by_email(mocker):
     # Arrange
-    mock_exec_result = AsyncMock(return_value=None)
     mock_session = session_mock(mocker)
-    mock_session.exec.return_value = mock_exec_result
 
     # Act
     await UserService.get_user_by_email(mock_session, EMAIL)
 
     # Assert
     mock_session.exec.assert_called_once()
-    mock_exec_result.first.assert_called_once_with()
+    mock_session.exec.return_value.first.assert_called_once_with()
 
 
 @pytest.mark.asyncio

@@ -1,17 +1,9 @@
 import pytest
-from passlib.context import CryptContext
 
 from src.services.PasswordService import PasswordService
 from src.security.secrets import SECRET
+from tests.unit.service.mocks.password_mock import get_verify_mock, get_hash_mock
 from tests.utils.utils_constant import HASHED_PASSWORD, PLAIN_PASSWORD
-
-
-def get_verify_mock(mocker):
-    return mocker.patch.object(CryptContext, "verify")
-
-
-def get_hash_mock(mocker):
-    return mocker.patch.object(CryptContext, "hash")
 
 
 @pytest.mark.asyncio

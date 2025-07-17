@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 import pytest
 
@@ -12,9 +11,9 @@ from src.Messages.jwt_messages import (
 from src.enums.Roles import Roles
 from src.models import User
 from src.services.AuthService import AuthService
-from src.services.JWTService import JWTService
-from src.services.UserService import UserService
-from src.services.PasswordService import PasswordService
+from tests.unit.service.mocks.jwt_mock import decode_service_mock
+from tests.unit.service.mocks.password_mock import verify_password_mock
+from tests.unit.service.mocks.users_mock import get_user_with_validity_check_mock
 
 from tests.utils.utils_constant import (
     UNKNOWN_ROLE,
@@ -24,30 +23,6 @@ from tests.utils.utils_constant import (
     LOGIN,
     EMAIL,
 )
-
-
-def get_user_mock(mocker, return_value: Optional[User]):
-    return mocker.patch.object(
-        UserService,
-        "get_user_by_login_with_validity_check",
-        return_value=return_value,
-    )
-
-
-def verify_password_mock(mocker, return_value: bool):
-    return mocker.patch.object(
-        PasswordService,
-        "verify_password",
-        return_value=return_value,
-    )
-
-
-def decode_mock(mocker, return_value: Optional[dict[str, str]]):
-    return mocker.patch.object(
-        JWTService,
-        "decode_jwt",
-        return_value=return_value,
-    )
 
 
 def session_mock(mocker):
@@ -62,7 +37,7 @@ def get_user():
 async def test_authenticate_user_success(mocker):
     # Arrange
     user = get_user()
-    mock_get_user = get_user_mock(mocker, user)
+    mock_get_user = get_user_with_validity_check_mock(mocker, user)
     mock_verify = verify_password_mock(mocker, True)
     mock_session = session_mock(mocker)
 
@@ -88,7 +63,7 @@ async def test_authenticate_user_success(mocker):
 @pytest.mark.asyncio
 async def test_authenticate_user_nonexistent(mocker):
     # Arrange
-    mock_get_user = get_user_mock(mocker, None)
+    mock_get_user = get_user_with_validity_check_mock(mocker, None)
     mock_verify = verify_password_mock(mocker, True)
     mock_session = session_mock(mocker)
 
@@ -107,7 +82,7 @@ async def test_authenticate_user_nonexistent(mocker):
 async def test_authenticate_user_wrong_password(mocker):
     # Arrange
     user = get_user()
-    mock_get_user = get_user_mock(mocker, user)
+    mock_get_user = get_user_with_validity_check_mock(mocker, user)
     mock_verify = verify_password_mock(mocker, False)
     mock_session = session_mock(mocker)
 
@@ -126,8 +101,8 @@ async def test_authenticate_user_wrong_password(mocker):
 async def test_get_current_user_in_jwt_success(mocker):
     # Arrange
     user = User(login=LOGIN, email=EMAIL, hashed_password=HASHED_PASSWORD)
-    mock_decode = decode_mock(mocker, {"sub": LOGIN})
-    mock_get_user = get_user_mock(mocker, user)
+    mock_decode = decode_service_mock(mocker, {"sub": LOGIN})
+    mock_get_user = get_user_with_validity_check_mock(mocker, user)
     mock_session = session_mock(mocker)
 
     # Act
@@ -142,8 +117,8 @@ async def test_get_current_user_in_jwt_success(mocker):
 @pytest.mark.asyncio
 async def test_get_current_user_in_jwt_user_not_found(mocker):
     # Arrange
-    mock_decode = decode_mock(mocker, {"sub": LOGIN})
-    mock_get_user = get_user_mock(mocker, None)
+    mock_decode = decode_service_mock(mocker, {"sub": LOGIN})
+    mock_get_user = get_user_with_validity_check_mock(mocker, None)
     mock_session = session_mock(mocker)
 
     # Act
@@ -162,7 +137,7 @@ async def test_get_current_user_in_jwt_user_not_found(mocker):
 )
 async def test_is_logged_as_user_success(mocker, role):
     # Arrange
-    mock_decode = decode_mock(mocker, {"role": role})
+    mock_decode = decode_service_mock(mocker, {"role": role})
 
     # Act
     result = await AuthService.is_logged_as_user(TOKEN)
@@ -175,7 +150,7 @@ async def test_is_logged_as_user_success(mocker, role):
 @pytest.mark.asyncio
 async def test_is_logged_as_admin_success(mocker):
     # Arrange
-    mock_decode = decode_mock(mocker, {"role": Roles.ADMIN})
+    mock_decode = decode_service_mock(mocker, {"role": Roles.ADMIN})
 
     # Act
     result = await AuthService.is_logged_as_admin(TOKEN)
@@ -197,7 +172,7 @@ async def test_is_logged_as_admin_success(mocker):
 )
 async def test_is_logged_as_error(mocker, method_to_test, role):
     # Arrange
-    mock_decode = decode_mock(mocker, {"role": role})
+    mock_decode = decode_service_mock(mocker, {"role": role})
 
     # Act
     with pytest.raises(JwtError) as error:
