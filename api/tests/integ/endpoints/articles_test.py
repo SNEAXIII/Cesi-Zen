@@ -143,10 +143,15 @@ get_one_params = {
     ids=[f"case_{k}" for k in get_one_params.keys()],
 )
 async def test_get_one(values: dict):
+    # Arrange
     reset_test_db()
     route = "/articles/1"
     await values["loader"]()
+
+    # Act
     async with get_test_client() as client:
         response = await client.get(route)
+
+    # Assert
     assert response.status_code == values["return_code"]
     assert response.json() == values["expected"]

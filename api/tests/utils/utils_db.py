@@ -6,10 +6,10 @@ from sqlmodel import SQLModel, create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from src.models import Article, Category, User, LoginLog, ExerciseCoherenceCardiac  # noqa: F401
 
 
-IS_ECHO = True
+IS_ECHO = False
+# IS_ECHO = True
 DB_NAME = "test.db"
 
 

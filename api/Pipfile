@@ -22,7 +22,7 @@ aiosqlite = "*"
 pytest-asyncio = "*"
 pytest-mock = "*"
 pytest-cov = "*"
-freezegun = "*"
+pytest-freezegun = "*"
 Faker = "*"
 
 [requires]

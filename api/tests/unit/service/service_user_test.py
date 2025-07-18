@@ -2,7 +2,6 @@ from datetime import datetime
 
 import pytest
 from fastapi.exceptions import RequestValidationError
-from freezegun import freeze_time
 
 from src.dto.dto_utilisateurs import CreateUser, UserAdminViewSingleUser
 from src.enums.Roles import Roles
@@ -254,9 +253,8 @@ async def test_get_user_by_login_with_validity_check_error(
     mock_user_by_login.assert_called_once_with(mock_session, LOGIN)
 
 
-@freeze_time(datetime.now())
 @pytest.mark.asyncio
-async def test_patch_disable_user_success(mocker):
+async def test_patch_disable_user_success(mocker, freezer):
     # Arrange
     fake_user = User(login=LOGIN)
     mock_session = session_mock(mocker)
@@ -298,9 +296,8 @@ async def test_patch_disable_user_error(mocker, fake_user, expected_error):
     mock_session.commit.assert_not_called()
 
 
-@freeze_time(datetime.now())
 @pytest.mark.asyncio
-async def test_self_delete_success(mocker):
+async def test_self_delete_success(mocker, freezer):
     # Arrange
     current_time = datetime.now()
     current_user = User(
@@ -409,9 +406,8 @@ async def test_patch_enable_user_error(mocker, fake_user, expected_error):
     mock_session.commit.assert_not_called()
 
 
-@freeze_time(datetime.now())
 @pytest.mark.asyncio
-async def test_delete_user_success(mocker):
+async def test_delete_user_success(mocker, freezer):
     # Arrange
     fake_user = User(login=LOGIN)
     mock_session = session_mock(mocker)

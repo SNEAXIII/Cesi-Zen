@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from freezegun import freeze_time
 from jwt import ExpiredSignatureError
 
 from src.Messages.jwt_messages import (
@@ -99,7 +98,6 @@ def test_decode_jwt_token_wrong_role(mocker, data):
     assert error.value.detail == str(INVALID_ROLE_EXCEPTION)
 
 
-@freeze_time(datetime.now())
 def test_create_access_token_success(mocker):
     # Arrange
     user = get_user()
@@ -134,8 +132,7 @@ def test_create_access_token_no_user():
     assert error.value.detail == str(CREDENTIALS_EXCEPTION)
 
 
-@freeze_time(datetime.now())
-def test_create_token_success(mocker):
+def test_create_token_success(mocker, freezer):
     # Arrange
     input_data = {"sub": LOGIN, "role": Roles.USER.value}
     mock_encode_mock = encode_mock(mocker)

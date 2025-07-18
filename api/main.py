@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from icecream import ic
 from starlette.middleware.base import _StreamingResponse
+from src.Messages.validators_messages import VALIDATION_ERROR
 from src.controllers.admin_controller import admin_controller
 from src.controllers.articles_controller import article_controller
 from src.controllers.auth_controller import auth_controller
@@ -96,7 +97,7 @@ async def validation_exception_handler(request, exc):
         errors_dict[location] = {"type": error.get("type"), "message": error_message}
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content={"message": "Erreur lors de la validation", "errors": errors_dict},
+        content={"message": VALIDATION_ERROR, "errors": errors_dict},
     )
 
 

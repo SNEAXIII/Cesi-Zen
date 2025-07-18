@@ -4,9 +4,14 @@ from datetime import datetime
 
 # User
 USER_ID = uuid.uuid4()
-EMAIL = "user@gmail.com"
 LOGIN = "login"
+EMAIL = f"{LOGIN}@gmail.com"
 WRONG_PASSWORD = "WrongPassword"
+USER_LOGIN  = "user"
+USER_EMAIL = f"{USER_LOGIN}@gmail.com"
+ADMIN_LOGIN  = "admin"
+ADMIN_EMAIL  = f"{ADMIN_LOGIN}@gmail.com"
+
 
 # Password
 PASSWORD = "ComplexPassword1!"

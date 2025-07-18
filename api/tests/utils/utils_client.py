@@ -5,7 +5,7 @@ from main import app
 
 
 @asynccontextmanager
-async def get_test_client():
+async def get_test_client()-> AsyncClient:
     async with AsyncClient(
         transport=ASGITransport(app=app, raise_app_exceptions=False),
         base_url="http://test",
